@@ -12,7 +12,7 @@
   "dependencies": {
   	"glob": "~3.2.1"
   },
-  "repository": "",
+  "repository": "git://github.com/mweibel/lcov-result-merger.git",
   "keywords": [
     "lcov",
     "mocha",

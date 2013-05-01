@@ -18,7 +18,7 @@ var glob = require('glob'),
 function processFile(data, lcov) {
 	var lines = data.split('\n'),
 		currentFileName = '';
-	//console.log(lcov);
+
 	for(var i = 0, l = lines.length; i < l; i++) {
 		var line = lines[i];
 		if(line === 'end_of_record' || line === '') {
