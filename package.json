@@ -1,0 +1,26 @@
+{
+  "name": "lcov-result-merger",
+  "version": "0.0.1",
+  "description": "Merges multiple lcov results into one",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+  	"lcov-result-merger": "./bin/lcov-result-merger"
+  },
+  "dependencies": {
+  	"glob": "~3.2.1"
+  },
+  "repository": "",
+  "keywords": [
+    "lcov",
+    "mocha",
+    "coveralls",
+    "code",
+    "coverage"
+  ],
+  "author": "Michael Weibel <michael.weibel@gmail.com>",
+  "license": "MIT",
+  "readmeFilename": "README.md"
+}
