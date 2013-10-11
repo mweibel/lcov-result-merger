@@ -1,6 +1,6 @@
 {
   "name": "lcov-result-merger",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Merges multiple lcov results into one",
   "main": "index.js",
   "scripts": {
@@ -12,7 +12,12 @@
   "dependencies": {
   	"glob": "~3.2.1"
   },
-  "repository": "git://github.com/mweibel/lcov-result-merger.git",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mweibel/lcov-result-merger.git"
+  },
+  "homepage": "https://github.com/mweibel/lcov-result-merger",
+  "bugs": "https://github.com/mweibel/lcov-result-merger/issues",
   "keywords": [
     "lcov",
     "mocha",
@@ -21,6 +26,9 @@
     "coverage"
   ],
   "author": "Michael Weibel <michael.weibel@gmail.com>",
+  "contributors": [
+    "M. Adam Kendall <akendall@devis.com>"
+  ],
   "license": "MIT",
   "readmeFilename": "README.md"
 }
