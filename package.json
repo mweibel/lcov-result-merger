@@ -7,10 +7,10 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
-  	"lcov-result-merger": "./bin/lcov-result-merger"
+    "lcov-result-merger": "./bin/lcov-result-merger"
   },
   "dependencies": {
-  	"glob": "~3.2.1"
+    "glob": "~3.2.1"
   },
   "repository": {
     "type": "git",
@@ -30,5 +30,8 @@
     "M. Adam Kendall <akendall@devis.com>"
   ],
   "license": "MIT",
-  "readmeFilename": "README.md"
+  "readmeFilename": "README.md",
+  "devDependencies": {
+    "jshint": "~2.1.11"
+  }
 }

@@ -20,18 +20,18 @@ var glob = require('glob'),
  * Object to represent DA record
  */
 function DA (lineNumber, hits) {
-	this.lineNumber = lineNumber
-	this.hits = hits
+	this.lineNumber = lineNumber;
+	this.hits = hits;
 }
 
 /*
  * Object to represent BRDA record
  */
 function BRDA (lineNumber, blockNumber, branchNumber, hits) {
-	this.lineNumber = lineNumber
-	this.blockNumber = blockNumber
-	this.branchNumber = branchNumber
-	this.hits = hits
+	this.lineNumber = lineNumber;
+	this.blockNumber = blockNumber;
+	this.branchNumber = branchNumber;
+	this.hits = hits;
 }
 
 /*
@@ -39,8 +39,8 @@ function BRDA (lineNumber, blockNumber, branchNumber, hits) {
  */
 function coverageFile(filename) {
 	this.filename = filename;
-	this.DARecords = []
-	this.BRDARecords = []
+	this.DARecords = [];
+	this.BRDARecords = [];
 }
 
 /*
@@ -60,9 +60,9 @@ function findDA(source, lineNumber) {
  */
 function findBRDA(source, blockNumber, branchNumber, lineNumber) {
 	for (var i=0; i < source.length; i++) {
-		if (source[i].blockNumber === blockNumber
-			&& source[i].branchNumber === branchNumber
-			&& source[i].lineNumber === lineNumber) {
+		if (source[i].blockNumber === blockNumber &&
+			source[i].branchNumber === branchNumber &&
+			source[i].lineNumber === lineNumber) {
 			return source[i];
 		}
 	}
@@ -111,10 +111,12 @@ function processFile(data, lcov) {
 			continue;
 		}
 
+		var numberSplit, lineNumber, hits;
+
 		if(prefix === 'DA') {
-			var numberSplit = prefixSplit[1].split(','),
-				lineNumber = parseInt(numberSplit[0], 10),
-				hits = parseInt(numberSplit[1], 10);
+			numberSplit = prefixSplit[1].split(',');
+			lineNumber = parseInt(numberSplit[0], 10);
+			hits = parseInt(numberSplit[1], 10);
 			var existingDA = findDA(currentCoverageFile.DARecords, lineNumber);
 			if(existingDA) {
 				existingDA.hits += hits;
@@ -126,12 +128,13 @@ function processFile(data, lcov) {
 		}
 
 		if(prefix === 'BRDA') {
-			var numberSplit = prefixSplit[1].split(','),
-				lineNumber = parseInt(numberSplit[0], 10),
-				blockNumber = parseInt(numberSplit[1], 10),
-				branchNumber = parseInt(numberSplit[2], 10),
-				hits = parseInt(numberSplit[3], 10);
-			var existingBRDA = findBRDA(currentCoverageFile.BRDARecords, blockNumber, branchNumber, lineNumber);
+			numberSplit = prefixSplit[1].split(',');
+			lineNumber = parseInt(numberSplit[0], 10);
+			var blockNumber = parseInt(numberSplit[1], 10),
+				branchNumber = parseInt(numberSplit[2], 10);
+			hits = parseInt(numberSplit[3], 10);
+			var existingBRDA = findBRDA(currentCoverageFile.BRDARecords,
+									blockNumber, branchNumber, lineNumber);
 			if(existingBRDA) {
 				existingBRDA.hits += hits;
 				continue;
@@ -140,8 +143,9 @@ function processFile(data, lcov) {
 			currentCoverageFile.BRDARecords.push(newBRDA);
 			continue;
 		}
-		//We could throw an error here, or, we could simply ignore it, since we're not interested.
-		//throw new Error('Unknown Prefix "' + prefix + '"');
+		// We could throw an error here, or, we could simply ignore it, since
+		// we're not interested.
+		// throw new Error('Unknown Prefix "' + prefix + '"');
 	}
 	return lcov;
 }
@@ -172,12 +176,14 @@ function mergeFiles(files, filePath) {
 		writer(filePath, 'SF:' + coverageFile.filename + '\n');
 		for (var daIndex in coverageFile.DARecords) {
 			var daRecord = coverageFile.DARecords[daIndex];
-			writer(filePath, 'DA:' + daRecord.lineNumber + ',' + daRecord.hits + '\n');
+			writer(filePath, 'DA:' + daRecord.lineNumber + ',' +
+					daRecord.hits + '\n');
 		}
 		for (var brdaIndex in coverageFile.BRDARecords) {
 			var brdaRecord = coverageFile.BRDARecords[brdaIndex];
-			writer(filePath, 'BRDA:' + brdaRecord.lineNumber + ',' + brdaRecord.blockNumber + ','
-				+ brdaRecord.branchNumber + ',' + brdaRecord.hits + '\n');
+			writer(filePath, 'BRDA:' + brdaRecord.lineNumber + ',' +
+				brdaRecord.blockNumber + ',' + brdaRecord.branchNumber + ',' +
+				brdaRecord.hits + '\n');
 		}
 		writer(filePath, 'end_of_record\n');
 	}
@@ -189,7 +195,7 @@ function mergeFiles(files, filePath) {
  */
 function getFilePath(outputFile) {
 	if (outputFile) {
-		if (outputFile.match("^/") == "/") {
+		if (outputFile.match("^/") === "/") {
 			return outputFile;
 		} else {
 			return path.join(cwd, "/", outputFile);
@@ -202,8 +208,10 @@ module.exports = function() {
 
 	if (process.argv.length < 3) {
 		console.error("");
-		console.error("Usage: node lcov-result-merger 'pattern' ['output file']");
-		console.error("EX: node lcov-result-merger 'target/**/lcov.out' 'target/lcov-merged.out'");
+		console.error("Usage: node lcov-result-merger 'pattern'" +
+			" ['output file']");
+		console.error("EX: node lcov-result-merger 'target/**/lcov.out'" +
+			" 'target/lcov-merged.out'");
 		console.error("");
 		process.exit(1);
 	}
