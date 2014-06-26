@@ -11,10 +11,8 @@
  *   MIT
  */
 
-var glob = require('glob'),
-	fs = require('fs'),
-	path = require('path'),
-	cwd = process.cwd();
+var through2 = require('through2'),
+	File = require('vinyl');
 
 /*
  * Object to represent DA record
@@ -151,81 +149,42 @@ function processFile(data, lcov) {
 }
 
 /*
- * Helper function to write output to either file or stdout
+ * Creates LCOV records for given list of files.
  */
-function writer(filePath, data) {
-	if (filePath) {
-		fs.appendFileSync(filePath, data);
-	} else {
-		process.stdout.write(data);
-	}
-}
-
-/*
- * Read in the multiple lcov files and merge them into one output
- */
-function mergeFiles(files, filePath) {
-	var lcov = [];
-	for(var i = 0, l = files.length; i < l; i++) {
-		var file = files[i],
-			data = fs.readFileSync(file);
-		lcov = processFile(data.toString(), lcov);
-	}
-	for (var fileIndex in lcov) {
-		var coverageFile = lcov[fileIndex];
-		writer(filePath, 'SF:' + coverageFile.filename + '\n');
-		for (var daIndex in coverageFile.DARecords) {
-			var daRecord = coverageFile.DARecords[daIndex];
-			writer(filePath, 'DA:' + daRecord.lineNumber + ',' +
-					daRecord.hits + '\n');
-		}
-		for (var brdaIndex in coverageFile.BRDARecords) {
-			var brdaRecord = coverageFile.BRDARecords[brdaIndex];
-			writer(filePath, 'BRDA:' + brdaRecord.lineNumber + ',' +
+function createRecords(coverageFiles) {
+	return coverageFiles.map(function(coverageFile) {
+		var header = 'SF:' + coverageFile.filename + '\n';
+		var footer = 'end_of_record\n';
+		var body = coverageFile.DARecords.map(function(daRecord) {
+			return 'DA:' + daRecord.lineNumber + ',' +
+				daRecord.hits + '\n';
+		}).join('') + coverageFile.BRDARecords.map(function(brdaRecord) {
+			return 'BRDA:' + brdaRecord.lineNumber + ',' +
 				brdaRecord.blockNumber + ',' + brdaRecord.branchNumber + ',' +
-				brdaRecord.hits + '\n');
-		}
-		writer(filePath, 'end_of_record\n');
-	}
-}
-
-/*
- This will determine if the filepath is relative or absolute.
- If relative, it will return the full absolute path based on CWD.
- */
-function getFilePath(outputFile) {
-	if (outputFile) {
-		if (outputFile.match("^/") === "/") {
-			return outputFile;
-		} else {
-			return path.join(cwd, "/", outputFile);
-		}
-	}
-	return null;
+				brdaRecord.hits + '\n';
+		}).join('');
+		return header + body + footer;
+	}).join('');
 }
 
 module.exports = function() {
-
-	if (process.argv.length < 3) {
-		console.error("");
-		console.error("Usage: node lcov-result-merger 'pattern'" +
-			" ['output file']");
-		console.error("EX: node lcov-result-merger 'target/**/lcov.out'" +
-			" 'target/lcov-merged.out'");
-		console.error("");
-		process.exit(1);
-	}
-	var files = process.argv[2];
-	var outputFile = process.argv[3];
-	var filePath = getFilePath(outputFile);
-	if (filePath && fs.existsSync(filePath)) {
-		fs.unlinkSync(filePath);
-	}
-	var options = {};
-	glob(files, options, function(err, files) {
-		if(err) {
-			throw new Error(err);
+	var coverageFiles = [];
+	return through2.obj(function process(file, encoding, callback) {
+		if (file.isNull()) {
+			callback();
+			return;
 		}
-		mergeFiles(files, filePath);
+		if (file.isStream()) {
+			throw new Error('Streaming not supported');
+		}
+		coverageFiles = processFile(file.contents.toString(), coverageFiles);
+		callback();
+	}, function flush() {
+		var file = new File({
+			path: 'lcov.info',
+			contents: new Buffer(createRecords(coverageFiles))
+		});
+		this.push(file);
+		this.emit('end');
 	});
 };

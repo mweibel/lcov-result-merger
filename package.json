@@ -3,14 +3,20 @@
   "version": "0.0.2",
   "description": "Merges multiple lcov results into one",
   "main": "index.js",
+  "files": [
+    "index.js",
+    "bin"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/.bin/gulp test"
   },
   "bin": {
-    "lcov-result-merger": "./bin/lcov-result-merger"
+    "lcov-result-merger": "./bin/lcov-result-merger.js"
   },
   "dependencies": {
-    "glob": "~3.2.1"
+    "through2": "^0.5.1",
+    "vinyl": "^0.2.3",
+    "vinyl-fs": "^0.3.3"
   },
   "repository": {
     "type": "git",
@@ -32,6 +38,12 @@
   "license": "MIT",
   "readmeFilename": "README.md",
   "devDependencies": {
+    "chai": "^1.9.1",
+    "chai-gulp-helpers": "0.0.3",
+    "gulp": "^3.8.3",
+    "gulp-istanbul": "^0.2.0",
+    "gulp-jshint": "^1.6.3",
+    "gulp-mocha": "^0.4.1",
     "jshint": "~2.1.11"
   }
 }
