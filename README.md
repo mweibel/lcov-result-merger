@@ -1,4 +1,5 @@
 # LCOV Result Merger
+[![Build Status](https://travis-ci.org/mweibel/lcov-result-merger.png)](https://travis-ci.org/mweibel/lco-result-merger)
 
 When you have multiple test suites for the same application you still want to
 have the code coverage across all testsuites.

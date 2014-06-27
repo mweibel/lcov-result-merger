@@ -1,6 +1,6 @@
 {
   "name": "lcov-result-merger",
-  "version": "0.0.2",
+  "version": "1.0.0",
   "description": "Merges multiple lcov results into one",
   "main": "index.js",
   "files": [
@@ -33,13 +33,14 @@
   ],
   "author": "Michael Weibel <michael.weibel@gmail.com>",
   "contributors": [
-    "M. Adam Kendall <akendall@devis.com>"
+    "M. Adam Kendall <akendall@devis.com>",
+    "Jussi Kalliokoski <jussi.kalliokoski@gmail.com>"
   ],
   "license": "MIT",
   "readmeFilename": "README.md",
   "devDependencies": {
     "chai": "^1.9.1",
-    "chai-gulp-helpers": "0.0.3",
+    "chai-gulp-helpers": "^0.0.3",
     "gulp": "^3.8.3",
     "gulp-istanbul": "^0.2.0",
     "gulp-jshint": "^1.6.3",
