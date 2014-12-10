@@ -17,7 +17,7 @@ var through2 = require('through2'),
 /*
  * Object to represent DA record
  */
-function DA (lineNumber, hits) {
+function DA(lineNumber, hits) {
 	this.lineNumber = lineNumber;
 	this.hits = hits;
 }
@@ -25,7 +25,7 @@ function DA (lineNumber, hits) {
 /*
  * Object to represent BRDA record
  */
-function BRDA (lineNumber, blockNumber, branchNumber, hits) {
+function BRDA(lineNumber, blockNumber, branchNumber, hits) {
 	this.lineNumber = lineNumber;
 	this.blockNumber = blockNumber;
 	this.branchNumber = branchNumber;
