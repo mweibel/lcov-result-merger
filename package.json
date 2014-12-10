@@ -14,9 +14,9 @@
     "lcov-result-merger": "./bin/lcov-result-merger.js"
   },
   "dependencies": {
-    "through2": "^0.5.1",
-    "vinyl": "^0.2.3",
-    "vinyl-fs": "^0.3.3"
+    "through2": "^0.6.3",
+    "vinyl": "^0.4.6",
+    "vinyl-fs": "^0.3.13"
   },
   "repository": {
     "type": "git",
@@ -39,12 +39,12 @@
   "license": "MIT",
   "readmeFilename": "README.md",
   "devDependencies": {
-    "chai": "^1.9.1",
+    "chai": "^1.10.0",
     "chai-gulp-helpers": "^0.0.3",
-    "gulp": "^3.8.3",
-    "gulp-istanbul": "^0.2.0",
-    "gulp-jshint": "^1.6.3",
-    "gulp-mocha": "^0.4.1",
-    "jshint": "~2.1.11"
+    "gulp": "^3.8.10",
+    "gulp-istanbul": "^0.5.0",
+    "gulp-jshint": "^1.9.0",
+    "gulp-mocha": "^2.0.0",
+    "jshint": "^2.5.10"
   }
 }
