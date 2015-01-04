@@ -29,7 +29,7 @@ function BRDA(lineNumber, blockNumber, branchNumber, hits) {
   this.lineNumber = lineNumber;
   this.blockNumber = blockNumber;
   this.branchNumber = branchNumber;
-  this.hits = hits;
+  this.hits = hits; // Always a string. See below.
 }
 
 /*
@@ -87,6 +87,26 @@ function processFile(data, lcov) {
     currentFileName = '',
     currentCoverageFile = null;
 
+  function _numericHits(hits) {
+    if (hits === '-'){
+      return 0;
+    }
+    return parseInt(hits, 10);
+  }
+
+  function _mergedBRDAHits(existingBRDAHits, newBRDAHits) {
+
+    // If we've never executed the branch code path in an existing coverage
+    // record and we've never executed it here either, then keep it as '-'
+    // (eg, never executed). If either of them is a number, then
+    // use the number value.
+    if(existingBRDA.hits !== '-' || hits !== '-') {
+      return _numericHits(existingBRDAHits) + _numericHits(newBRDAHits);
+    }
+
+    return '-';
+  }
+
   for(var i = 0, l = lines.length; i < l; i++) {
     var line = lines[i];
     if(line === 'end_of_record' || line === '') {
@@ -130,11 +150,16 @@ function processFile(data, lcov) {
       lineNumber = parseInt(numberSplit[0], 10);
       var blockNumber = parseInt(numberSplit[1], 10),
         branchNumber = parseInt(numberSplit[2], 10);
-      hits = parseInt(numberSplit[3], 10);
       var existingBRDA = findBRDA(currentCoverageFile.BRDARecords,
                   blockNumber, branchNumber, lineNumber);
-      if(existingBRDA) {
-        existingBRDA.hits += hits;
+      // Special case, hits might be a '-'. This means that the code block
+      // where the branch was contained was never executed at all (as opposed
+      // to the code being executed, but the branch not being taken). Keep
+      // it as a string and let _mergedBRDAHits work it out.
+      hits = numberSplit[3];
+
+      if (existingBRDA) {
+        existingBRDA.hits = _mergedBRDAHits(existingBRDA.hits, hits);
         continue;
       }
       var newBRDA = new BRDA(lineNumber, blockNumber, branchNumber, hits);
