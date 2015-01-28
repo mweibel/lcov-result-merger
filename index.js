@@ -119,7 +119,9 @@ function processFile(data, lcov) {
       prefix = prefixSplit[0];
 
     if(prefix === 'SF') {
-      currentFileName = prefixSplit[1];
+      // If the filepath contains a ':', we want to preserve it.
+      prefixSplit.shift();
+      currentFileName = prefixSplit.join(':');
       currentCoverageFile = findCoverageFile(lcov, currentFileName);
       if(currentCoverageFile) {
         continue;
