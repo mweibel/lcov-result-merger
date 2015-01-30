@@ -33,4 +33,11 @@ describe('lcovResultMerger', function() {
       }));
     }.should.throw('Streaming not supported');
   });
+
+  it('should handle a record with : in the name', function() {
+    var expected = fs.src('./test/expected/windows/lcov.info');
+    var actual = fs.src('./test/fixtures/windows/lcov.info')
+      .pipe(lcovResultMerger());
+    return actual.should.produce.sameFilesAs(expected);
+  });
 });
