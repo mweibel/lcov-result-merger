@@ -4,7 +4,7 @@ var fs = require('vinyl-fs')
 var File = require('vinyl')
 var through = require('through2')
 var chai = require('chai')
-var chaiGulpHelpers = require("chai-gulp-helpers")
+var chaiGulpHelpers = require('chai-gulp-helpers')
 var lcovResultMerger = require('../index.js')
 
 chai.should()
