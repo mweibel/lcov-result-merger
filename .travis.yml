@@ -1,5 +1,19 @@
-#
-# .travis.yml
-#
-
 language: node_js
+node_js:
+  - "0.10"
+  - "0.12"
+  - "5"
+  - "4.4"
+  - "4.3"
+  - "4.2"
+  - "4.1"
+  - "4.0"
+sudo: false
+
+script:
+  - npm run lint
+  - npm test
+
+cache:
+  directories:
+    - node_modules
