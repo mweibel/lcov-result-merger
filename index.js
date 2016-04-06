@@ -35,7 +35,7 @@ function BRDA(lineNumber, blockNumber, branchNumber, hits) {
 /*
  * Object to represent coverage file and it's DA/BRDA records
  */
-function coverageFile(filename) {
+function CoverageFile(filename) {
   this.filename = filename;
   this.DARecords = [];
   this.BRDARecords = [];
@@ -79,6 +79,25 @@ function findCoverageFile(source, filename) {
   return null;
 }
 
+function numericHits(hits) {
+  if (hits === '-'){
+    return 0;
+  }
+  return parseInt(hits, 10);
+}
+
+function mergedBRDAHits(existingBRDAHits, newBRDAHits) {
+  // If we've never executed the branch code path in an existing coverage
+  // record and we've never executed it here either, then keep it as '-'
+  // (eg, never executed). If either of them is a number, then
+  // use the number value.
+  if(existingBRDAHits !== '-' || newBRDAHits !== '-') {
+    return numericHits(existingBRDAHits) + numericHits(newBRDAHits);
+  }
+
+  return '-';
+}
+
 /*
  * Process a lcov input file into the representing Objects
  */
@@ -86,26 +105,6 @@ function processFile(data, lcov) {
   var lines = data.split('\n'),
     currentFileName = '',
     currentCoverageFile = null;
-
-  function _numericHits(hits) {
-    if (hits === '-'){
-      return 0;
-    }
-    return parseInt(hits, 10);
-  }
-
-  function _mergedBRDAHits(existingBRDAHits, newBRDAHits) {
-
-    // If we've never executed the branch code path in an existing coverage
-    // record and we've never executed it here either, then keep it as '-'
-    // (eg, never executed). If either of them is a number, then
-    // use the number value.
-    if(existingBRDA.hits !== '-' || hits !== '-') {
-      return _numericHits(existingBRDAHits) + _numericHits(newBRDAHits);
-    }
-
-    return '-';
-  }
 
   for(var i = 0, l = lines.length; i < l; i++) {
     var line = lines[i];
@@ -126,7 +125,7 @@ function processFile(data, lcov) {
       if(currentCoverageFile) {
         continue;
       }
-      currentCoverageFile = new coverageFile(currentFileName);
+      currentCoverageFile = new CoverageFile(currentFileName);
       lcov.push(currentCoverageFile);
       continue;
     }
@@ -157,16 +156,15 @@ function processFile(data, lcov) {
       // Special case, hits might be a '-'. This means that the code block
       // where the branch was contained was never executed at all (as opposed
       // to the code being executed, but the branch not being taken). Keep
-      // it as a string and let _mergedBRDAHits work it out.
+      // it as a string and let mergedBRDAHits work it out.
       hits = numberSplit[3];
 
       if (existingBRDA) {
-        existingBRDA.hits = _mergedBRDAHits(existingBRDA.hits, hits);
+        existingBRDA.hits = mergedBRDAHits(existingBRDA.hits, hits);
         continue;
       }
       var newBRDA = new BRDA(lineNumber, blockNumber, branchNumber, hits);
       currentCoverageFile.BRDARecords.push(newBRDA);
-      continue;
     }
     // We could throw an error here, or, we could simply ignore it, since
     // we're not interested.

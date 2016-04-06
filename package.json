@@ -42,7 +42,7 @@
     "chai": "^1.10.0",
     "chai-gulp-helpers": "^0.0.3",
     "gulp": "^3.8.10",
-    "gulp-istanbul": "^0.5.0",
+    "gulp-istanbul": "^0.10.4",
     "gulp-jshint": "^1.9.0",
     "gulp-mocha": "^2.0.0",
     "jshint": "^2.5.10"
