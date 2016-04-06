@@ -9,7 +9,9 @@
   ],
   "scripts": {
     "lint": "standard",
-    "test": "mocha --reporter spec test --bail"
+    "test": "mocha -R spec test --bail",
+    "test-coverage": "istanbul cover _mocha --report lcovonly -- -R spec test --bail",
+    "coveralls": "cat ./coverage/lcov.info | coveralls"
   },
   "bin": {
     "lcov-result-merger": "./bin/lcov-result-merger.js"
@@ -42,6 +44,7 @@
   "devDependencies": {
     "chai": "^1.10.0",
     "chai-gulp-helpers": "0.0.3",
+    "coveralls": "^2.11.9",
     "eslint": "^2.7.0",
     "eslint-config-standard": "^5.1.0",
     "eslint-plugin-promise": "^1.1.0",
