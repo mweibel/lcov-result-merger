@@ -16,11 +16,6 @@
   "bin": {
     "lcov-result-merger": "./bin/lcov-result-merger.js"
   },
-  "dependencies": {
-    "through2": "^2.0.1",
-    "vinyl": "^1.1.1",
-    "vinyl-fs": "^2.4.3"
-  },
   "repository": {
     "type": "git",
     "url": "git://github.com/mweibel/lcov-result-merger.git"
@@ -41,6 +36,11 @@
   ],
   "license": "MIT",
   "readmeFilename": "README.md",
+  "dependencies": {
+    "through2": "^2.0.1",
+    "vinyl": "^1.1.1",
+    "vinyl-fs": "^2.4.3"
+  },
   "devDependencies": {
     "chai": "^3.5.0",
     "chai-gulp-helpers": "0.0.3",
