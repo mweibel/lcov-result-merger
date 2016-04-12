@@ -79,7 +79,7 @@ function CoverageFile (filename) {
  *
  * @returns {string}
  */
-CoverageFile.prototype.toString = function() {
+CoverageFile.prototype.toString = function () {
   var header = 'SF:' + this.filename + '\n'
   var footer = 'end_of_record\n'
 
