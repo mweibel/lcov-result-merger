@@ -184,22 +184,103 @@ function mergedBRDAHits (existingBRDAHits, newBRDAHits) {
 }
 
 /**
+ * Splits the second part of the prefix into an array. The array
+ * is a list of strings which represent numbers.
+ *
+ * @param {string[]} prefixSplit
+ *
+ * @returns {string[]}
+ */
+function splitNumbers (prefixSplit) {
+  return prefixSplit[1].split(',')
+}
+
+/**
+ * Parses a SF section
+ *
+ * @param {CoverageFile[]} lcov
+ * @param {string[]}       prefixSplit
+ *
+ * @returns {CoverageFile|null}
+ */
+function parseSF (lcov, prefixSplit) {
+  // If the filepath contains a ':', we want to preserve it.
+  prefixSplit.shift()
+  var currentFileName = prefixSplit.join(':')
+  var currentCoverageFile = findCoverageFile(lcov, currentFileName)
+  if (currentCoverageFile) {
+    return currentCoverageFile
+  }
+  currentCoverageFile = new CoverageFile(currentFileName)
+  lcov.push(currentCoverageFile)
+
+  return currentCoverageFile
+}
+
+/**
+ * Parses a DA section
+ *
+ * @param {CoverageFile} currentCoverageFile
+ * @param {string[]}     prefixSplit
+ */
+function parseDA (currentCoverageFile, prefixSplit) {
+  var numberSplit = splitNumbers(prefixSplit)
+  var lineNumber = parseInt(numberSplit[0], 10)
+  var hits = parseInt(numberSplit[1], 10)
+
+  var existingDA = findDA(currentCoverageFile.DARecords, lineNumber)
+  if (existingDA) {
+    existingDA.hits += hits
+    return
+  }
+
+  currentCoverageFile.DARecords.push(new DA(lineNumber, hits))
+}
+
+/**
+ * Parses a BRDA section
+ *
+ * @param {CoverageFile} currentCoverageFile
+ * @param {string[]}     prefixSplit
+ */
+function parseBRDA (currentCoverageFile, prefixSplit) {
+  var numberSplit = splitNumbers(prefixSplit)
+  var lineNumber = parseInt(numberSplit[0], 10)
+  var blockNumber = parseInt(numberSplit[1], 10)
+  var branchNumber = parseInt(numberSplit[2], 10)
+
+  var existingBRDA = findBRDA(currentCoverageFile.BRDARecords,
+    blockNumber, branchNumber, lineNumber)
+
+  // Special case, hits might be a '-'. This means that the code block
+  // where the branch was contained was never executed at all (as opposed
+  // to the code being executed, but the branch not being taken). Keep
+  // it as a string and let mergedBRDAHits work it out.
+  var hits = numberSplit[3]
+
+  if (existingBRDA) {
+    existingBRDA.hits = mergedBRDAHits(existingBRDA.hits, hits)
+    return
+  }
+
+  currentCoverageFile.BRDARecords.push(new BRDA(lineNumber, blockNumber, branchNumber, hits))
+}
+
+/**
  * Process a lcov input file into the representing Objects
  *
- * @param {string} data
- * @param {array}  lcov
+ * @param {string}         data
+ * @param {CoverageFile[]} lcov
  *
- * @returns {array}
+ * @returns {CoverageFile[]}
  */
 function processFile (data, lcov) {
   var lines = data.split('\n')
-  var currentFileName = ''
   var currentCoverageFile = null
 
   for (var i = 0, l = lines.length; i < l; i++) {
     var line = lines[i]
     if (line === 'end_of_record' || line === '') {
-      currentFileName = ''
       currentCoverageFile = null
       continue
     }
@@ -207,54 +288,18 @@ function processFile (data, lcov) {
     var prefixSplit = line.split(':')
     var prefix = prefixSplit[0]
 
-    if (prefix === 'SF') {
-      // If the filepath contains a ':', we want to preserve it.
-      prefixSplit.shift()
-      currentFileName = prefixSplit.join(':')
-      currentCoverageFile = findCoverageFile(lcov, currentFileName)
-      if (currentCoverageFile) {
-        continue
-      }
-      currentCoverageFile = new CoverageFile(currentFileName)
-      lcov.push(currentCoverageFile)
-      continue
-    }
-
-    var numberSplit, lineNumber, hits
-
-    if (prefix === 'DA') {
-      numberSplit = prefixSplit[1].split(',')
-      lineNumber = parseInt(numberSplit[0], 10)
-      hits = parseInt(numberSplit[1], 10)
-      var existingDA = findDA(currentCoverageFile.DARecords, lineNumber)
-      if (existingDA) {
-        existingDA.hits += hits
-        continue
-      }
-      var newDA = new DA(lineNumber, hits)
-      currentCoverageFile.DARecords.push(newDA)
-      continue
-    }
-
-    if (prefix === 'BRDA') {
-      numberSplit = prefixSplit[1].split(',')
-      lineNumber = parseInt(numberSplit[0], 10)
-      var blockNumber = parseInt(numberSplit[1], 10)
-      var branchNumber = parseInt(numberSplit[2], 10)
-      var existingBRDA = findBRDA(currentCoverageFile.BRDARecords,
-        blockNumber, branchNumber, lineNumber)
-      // Special case, hits might be a '-'. This means that the code block
-      // where the branch was contained was never executed at all (as opposed
-      // to the code being executed, but the branch not being taken). Keep
-      // it as a string and let mergedBRDAHits work it out.
-      hits = numberSplit[3]
-
-      if (existingBRDA) {
-        existingBRDA.hits = mergedBRDAHits(existingBRDA.hits, hits)
-        continue
-      }
-      var newBRDA = new BRDA(lineNumber, blockNumber, branchNumber, hits)
-      currentCoverageFile.BRDARecords.push(newBRDA)
+    switch (prefix) {
+      case 'SF':
+        currentCoverageFile = parseSF(lcov, prefixSplit)
+        break
+      case 'DA':
+        parseDA(currentCoverageFile, prefixSplit)
+        break
+      case 'BRDA':
+        parseBRDA(currentCoverageFile, prefixSplit)
+        break
+      default:
+        // do nothing with not implemented prefixes
     }
   }
   return lcov
