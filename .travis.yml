@@ -24,7 +24,7 @@ addons:
 script:
   - npm run lint
   - npm run test-coverage
-  - npm run coveralls
+  - npm run coveralls || true
 
 cache:
   directories:
