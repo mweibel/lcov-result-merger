@@ -6,7 +6,7 @@
  * @license MIT
  */
 
-var through2 = require('through2')
+var through = require('through2')
 var File = require('vinyl')
 
 /**
@@ -275,7 +275,7 @@ function createRecords (coverageFiles) {
 
 module.exports = function () {
   var coverageFiles = []
-  return through2.obj(function process (file, encoding, callback) {
+  return through.obj(function process (file, encoding, callback) {
     if (file.isNull()) {
       callback()
       return
