@@ -104,8 +104,9 @@ CoverageFile.prototype.toString = function () {
  */
 function findDA (source, lineNumber) {
   for (var i = 0; i < source.length; i++) {
-    if (source[i].lineNumber === lineNumber) {
-      return source[i]
+    var da = source[i]
+    if (da.lineNumber === lineNumber) {
+      return da
     }
   }
   return null
@@ -123,10 +124,11 @@ function findDA (source, lineNumber) {
  */
 function findBRDA (source, blockNumber, branchNumber, lineNumber) {
   for (var i = 0; i < source.length; i++) {
-    if (source[i].blockNumber === blockNumber &&
-      source[i].branchNumber === branchNumber &&
-      source[i].lineNumber === lineNumber) {
-      return source[i]
+    var brda = source[i]
+    if (brda.blockNumber === blockNumber &&
+      brda.branchNumber === branchNumber &&
+      brda.lineNumber === lineNumber) {
+      return brda
     }
   }
   return null
@@ -142,8 +144,9 @@ function findBRDA (source, blockNumber, branchNumber, lineNumber) {
  */
 function findCoverageFile (source, filename) {
   for (var i = 0; i < source.length; i++) {
-    if (source[i].filename === filename) {
-      return source[i]
+    var file = source[i]
+    if (file.filename === filename) {
+      return file
     }
   }
   return null
