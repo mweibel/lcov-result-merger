@@ -1,29 +1,45 @@
 /**
- * LCOV Result merger
+ * LCOV result merger
  *
- * Author:
- *   Michael Weibel <michael.weibel@gmail.com>
- *
- * Copyright:
- *   2013 Michael Weibel
- *
- * License:
- *   MIT
+ * @author Michael Weibel <michael.weibel@gmail.com>
+ * @copyright 2013-2016 Michael Weibel
+ * @license MIT
  */
 
 var through2 = require('through2')
 var File = require('vinyl')
 
-/*
- * Object to represent DA record
+/**
+ * Represents a DA record
+ *
+ * @param {number} lineNumber
+ * @param {number} hits
+ *
+ * @constructor
  */
 function DA (lineNumber, hits) {
   this.lineNumber = lineNumber
   this.hits = hits
 }
 
-/*
- * Object to represent BRDA record
+/**
+ * Generates a DA string
+ *
+ * @returns {string}
+ */
+DA.prototype.toString = function () {
+  return 'DA:' + this.lineNumber + ',' + this.hits + '\n'
+}
+
+/**
+ * Represents a BRDA record
+ *
+ * @param {number} lineNumber
+ * @param {number} blockNumber
+ * @param {number} branchNumber
+ * @param {number} hits
+ *
+ * @constructor
  */
 function BRDA (lineNumber, blockNumber, branchNumber, hits) {
   this.lineNumber = lineNumber
@@ -32,8 +48,25 @@ function BRDA (lineNumber, blockNumber, branchNumber, hits) {
   this.hits = hits
 }
 
-/*
- * Object to represent coverage file and it's DA/BRDA records
+/**
+ * Generates a BRDA string
+ *
+ * @returns {string}
+ */
+BRDA.prototype.toString = function () {
+  var str = 'BRDA:'
+  str += [this.lineNumber, this.blockNumber, this.branchNumber, this.hits].join(',')
+  str += '\n'
+
+  return str
+}
+
+/**
+ * Represents a coverage file and it's DA/BRDA records
+ *
+ * @param {string} filename
+ *
+ * @constructor
  */
 function CoverageFile (filename) {
   this.filename = filename
@@ -41,8 +74,33 @@ function CoverageFile (filename) {
   this.BRDARecords = []
 }
 
-/*
- * Will find an existing DA record
+/**
+ * Generates a coverage report for a file.
+ *
+ * @returns {string}
+ */
+CoverageFile.prototype.toString = function() {
+  var header = 'SF:' + this.filename + '\n'
+  var footer = 'end_of_record\n'
+
+  var body = this.DARecords.map(function (daRecord) {
+    return daRecord.toString()
+  }).join('')
+
+  body += this.BRDARecords.map(function (brdaRecord) {
+    return brdaRecord.toString()
+  }).join('')
+
+  return header + body + footer
+}
+
+/**
+ * Find an existing DA record
+ *
+ * @param {DA[]}     source
+ * @param {number} lineNumber
+ *
+ * @returns {DA|null}
  */
 function findDA (source, lineNumber) {
   for (var i = 0; i < source.length; i++) {
@@ -53,8 +111,15 @@ function findDA (source, lineNumber) {
   return null
 }
 
-/*
- * Will find an existing BRDA record
+/**
+ * Find an existing BRDA record
+ *
+ * @param {BRDA[]}   source
+ * @param {number} blockNumber
+ * @param {number} branchNumber
+ * @param {number} lineNumber
+ *
+ * @returns {BRDA|null}
  */
 function findBRDA (source, blockNumber, branchNumber, lineNumber) {
   for (var i = 0; i < source.length; i++) {
@@ -67,8 +132,13 @@ function findBRDA (source, blockNumber, branchNumber, lineNumber) {
   return null
 }
 
-/*
- * will find an existing coverage file
+/**
+ * Find an existing coverage file
+ *
+ * @param {CoverageFile[]} source
+ * @param {string}         filename
+ *
+ * @returns {CoverageFile|null}
  */
 function findCoverageFile (source, filename) {
   for (var i = 0; i < source.length; i++) {
@@ -79,6 +149,13 @@ function findCoverageFile (source, filename) {
   return null
 }
 
+/**
+ * Returns appropriate number of hits based on the string value of hits.
+ *
+ * @param {string} hits
+ *
+ * @returns {number}
+ */
 function numericHits (hits) {
   if (hits === '-') {
     return 0
@@ -86,6 +163,14 @@ function numericHits (hits) {
   return parseInt(hits, 10)
 }
 
+/**
+ * Merges BRDA hits.
+ *
+ * @param {string} existingBRDAHits
+ * @param {string} newBRDAHits
+ *
+ * @returns {number|string}
+ */
 function mergedBRDAHits (existingBRDAHits, newBRDAHits) {
   // If we've never executed the branch code path in an existing coverage
   // record and we've never executed it here either, then keep it as '-'
@@ -98,8 +183,13 @@ function mergedBRDAHits (existingBRDAHits, newBRDAHits) {
   return '-'
 }
 
-/*
+/**
  * Process a lcov input file into the representing Objects
+ *
+ * @param {string} data
+ * @param {array}  lcov
+ *
+ * @returns {array}
  */
 function processFile (data, lcov) {
   var lines = data.split('\n')
@@ -166,29 +256,20 @@ function processFile (data, lcov) {
       var newBRDA = new BRDA(lineNumber, blockNumber, branchNumber, hits)
       currentCoverageFile.BRDARecords.push(newBRDA)
     }
-  // We could throw an error here, or, we could simply ignore it, since
-  // we're not interested.
-  // throw new Error('Unknown Prefix "' + prefix + '"')
   }
   return lcov
 }
 
-/*
+/**
  * Creates LCOV records for given list of files.
+ *
+ * @param {CoverageFile[]} coverageFiles
+ *
+ * @returns {string}
  */
 function createRecords (coverageFiles) {
   return coverageFiles.map(function (coverageFile) {
-    var header = 'SF:' + coverageFile.filename + '\n'
-    var footer = 'end_of_record\n'
-    var body = coverageFile.DARecords.map(function (daRecord) {
-      return 'DA:' + daRecord.lineNumber + ',' +
-      daRecord.hits + '\n'
-    }).join('') + coverageFile.BRDARecords.map(function (brdaRecord) {
-      return 'BRDA:' + brdaRecord.lineNumber + ',' +
-      brdaRecord.blockNumber + ',' + brdaRecord.branchNumber + ',' +
-      brdaRecord.hits + '\n'
-    }).join('')
-    return header + body + footer
+    return coverageFile.toString()
   }).join('')
 }
 
