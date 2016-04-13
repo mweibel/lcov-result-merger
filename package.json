@@ -1,6 +1,6 @@
 {
   "name": "lcov-result-merger",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Merges multiple lcov results into one",
   "main": "index.js",
   "files": [
