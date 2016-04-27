@@ -46,6 +46,7 @@
     "chai-gulp-helpers": "0.0.3",
     "coveralls": "^2.11.9",
     "cracks": "^3.1.2",
+    "cz-conventional-changelog": "^1.1.6",
     "eslint": "^2.7.0",
     "eslint-config-standard": "^5.1.0",
     "eslint-plugin-promise": "^1.1.0",
@@ -60,5 +61,10 @@
   },
   "release": {
     "verifyRelease": "cracks"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }
