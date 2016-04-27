@@ -1,6 +1,5 @@
 {
   "name": "lcov-result-merger",
-  "version": "1.1.0",
   "description": "Merges multiple lcov results into one",
   "main": "index.js",
   "files": [
@@ -11,14 +10,15 @@
     "lint": "standard",
     "test": "mocha -R spec test --bail",
     "test-coverage": "istanbul cover _mocha --report lcovonly -- -R spec test --bail",
-    "coveralls": "cat ./coverage/lcov.info | coveralls"
+    "coveralls": "cat ./coverage/lcov.info | coveralls",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "bin": {
     "lcov-result-merger": "./bin/lcov-result-merger.js"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/mweibel/lcov-result-merger.git"
+    "url": "https://github.com/mweibel/lcov-result-merger.git"
   },
   "homepage": "https://github.com/mweibel/lcov-result-merger",
   "bugs": "https://github.com/mweibel/lcov-result-merger/issues",
@@ -45,15 +45,26 @@
     "chai": "^3.5.0",
     "chai-gulp-helpers": "0.0.3",
     "coveralls": "^2.11.9",
+    "cracks": "^3.1.2",
+    "cz-conventional-changelog": "^1.1.6",
     "eslint": "^2.7.0",
     "eslint-config-standard": "^5.1.0",
     "eslint-plugin-promise": "^1.1.0",
     "eslint-plugin-standard": "^1.3.2",
     "istanbul": "^0.4.2",
     "mocha": "^2.4.5",
+    "semantic-release": "^4.3.5",
     "standard": "^6.0.8"
   },
   "engines": {
     "node": ">=0.10.0 <=6"
+  },
+  "release": {
+    "verifyRelease": "cracks"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }
