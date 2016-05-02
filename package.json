@@ -48,13 +48,13 @@
     "cracks": "^3.1.2",
     "cz-conventional-changelog": "^1.1.6",
     "eslint": "^2.7.0",
-    "eslint-config-standard": "^5.1.0",
+    "eslint-config-standard": "^5.3.0",
     "eslint-plugin-promise": "^1.1.0",
     "eslint-plugin-standard": "^1.3.2",
     "istanbul": "^0.4.2",
     "mocha": "^2.4.5",
     "semantic-release": "^4.3.5",
-    "standard": "^6.0.8"
+    "standard": "^7.0.0"
   },
   "engines": {
     "node": ">=0.10.0 <=6"
@@ -62,7 +62,10 @@
   "release": {
     "verifyRelease": {
       "path": "cracks",
-      "paths": ["test", "package.json"],
+      "paths": [
+        "test",
+        "package.json"
+      ],
       "silent": true
     }
   },
