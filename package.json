@@ -54,7 +54,7 @@
     "istanbul": "^0.4.2",
     "mocha": "^2.4.5",
     "semantic-release": "^4.3.5",
-    "standard": "^6.0.8"
+    "standard": "^7.0.0"
   },
   "engines": {
     "node": ">=0.10.0 <=6"
@@ -62,7 +62,10 @@
   "release": {
     "verifyRelease": {
       "path": "cracks",
-      "paths": ["test", "package.json"],
+      "paths": [
+        "test",
+        "package.json"
+      ],
       "silent": true
     }
   },
