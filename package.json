@@ -38,7 +38,7 @@
   "readmeFilename": "README.md",
   "dependencies": {
     "through2": "^2.0.1",
-    "vinyl": "^1.1.1",
+    "vinyl": "^2.0.0",
     "vinyl-fs": "^2.4.3"
   },
   "devDependencies": {
