@@ -54,7 +54,7 @@
     "istanbul": "^0.4.2",
     "mocha": "^3.0.0",
     "semantic-release": "^4.3.5",
-    "standard": "^8.0.0"
+    "standard": "^8.6.0"
   },
   "engines": {
     "node": ">=0.10.0 <=6"
