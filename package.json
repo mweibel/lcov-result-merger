@@ -46,7 +46,7 @@
     "chai-gulp-helpers": "0.0.3",
     "coveralls": "^2.11.9",
     "cracks": "^3.1.2",
-    "cz-conventional-changelog": "^1.1.6",
+    "cz-conventional-changelog": "^2.0.0",
     "eslint": "^3.1.0",
     "eslint-config-standard": "^6.0.0",
     "eslint-plugin-promise": "^3.0.0",
