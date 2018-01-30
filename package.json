@@ -57,7 +57,7 @@
     "standard": "^8.0.0"
   },
   "engines": {
-    "node": ">=0.10.0 <=9"
+    "node": ">=4 <=9"
   },
   "release": {
     "verifyRelease": {
