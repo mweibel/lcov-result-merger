@@ -11,7 +11,8 @@
     "test": "mocha -R spec test --bail",
     "test-coverage": "istanbul cover _mocha --report lcovonly -- -R spec test --bail",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
+    "semantic-release": "semantic-release",
+    "travis-deploy-once": "travis-deploy-once"
   },
   "bin": {
     "lcov-result-merger": "./bin/lcov-result-merger.js"
@@ -53,8 +54,9 @@
     "eslint-plugin-standard": "^2.0.0",
     "istanbul": "^0.4.2",
     "mocha": "^3.0.0",
-    "semantic-release": "^4.3.5",
-    "standard": "^8.0.0"
+    "semantic-release": "^12.4.1",
+    "standard": "^8.0.0",
+    "travis-deploy-once": "^4.3.3"
   },
   "engines": {
     "node": ">=4 <=9"
@@ -73,5 +75,6 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
-  }
+  },
+  "version": "0.0.0-development"
 }
