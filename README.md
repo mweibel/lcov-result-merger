@@ -14,7 +14,6 @@ This tool will handle this for you.
 
 `./node_modules/.bin/lcov-result-merger 'FILE_PATTERN' ['OUTPUT_FILE']`
 
-
 # Examples
 
 ## Use stdout
