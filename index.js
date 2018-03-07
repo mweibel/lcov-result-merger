@@ -336,7 +336,7 @@ module.exports = function () {
   }, function flush () {
     var file = new File({
       path: 'lcov.info',
-      contents: new Buffer(createRecords(coverageFiles))
+      contents: Buffer.from(createRecords(coverageFiles))
     })
     this.push(file)
     this.emit('end')
