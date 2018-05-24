@@ -278,7 +278,7 @@ function parseBRDA (currentCoverageFile, prefixSplit) {
  * @returns {CoverageFile[]}
  */
 function processFile (data, lcov) {
-  var lines = data.split('\n')
+  var lines = data.split(/\r?\n/)
   var currentCoverageFile = null
 
   for (var i = 0, l = lines.length; i < l; i++) {
