@@ -59,7 +59,7 @@
     "travis-deploy-once": "^4.3.4"
   },
   "engines": {
-    "node": ">=4 <=9"
+    "node": ">=4"
   },
   "release": {
     "verifyRelease": {
