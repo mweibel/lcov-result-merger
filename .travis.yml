@@ -7,7 +7,6 @@ notifications:
 node_js:
   - 'lts/*'
   - '10'
-  - '8'
 jobs:
   allow_failures:
     node_js: 'lts/*'
