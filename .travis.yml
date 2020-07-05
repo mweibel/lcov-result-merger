@@ -9,6 +9,10 @@ node_js:
   - 'lts/*'
   - '10'
   - '8'
+jobs:
+  allow_failures:
+    node_js: stable
+    node_js: 'lts/*'
 after_success:
   - npm run travis-deploy-once "npm run semantic-release"
 branches:
