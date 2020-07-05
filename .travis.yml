@@ -5,11 +5,10 @@ cache:
 notifications:
   email: false
 node_js:
+  - stable
+  - 'lts/*'
   - '10'
-  - '9'
   - '8'
-  - '7'
-  - '6'
 after_success:
   - npm run travis-deploy-once "npm run semantic-release"
 branches:
