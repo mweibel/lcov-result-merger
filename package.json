@@ -40,9 +40,11 @@
   "dependencies": {
     "through2": "^2.0.3",
     "vinyl": "^2.1.0",
-    "vinyl-fs": "^3.0.2"
+    "vinyl-fs": "^3.0.2",
+    "yargs": "^16.2.0"
   },
   "devDependencies": {
+    "@types/yargs": "^17.0.10",
     "chai": "^4.1.2",
     "chai-gulp-helpers": "0.0.3",
     "coveralls": "^3.0.0",
