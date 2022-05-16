@@ -12,7 +12,9 @@ This tool will handle this for you.
 
 # Usage
 
-`./node_modules/.bin/lcov-result-merger 'FILE_PATTERN' ['OUTPUT_FILE']`
+```bash
+./node_modules/.bin/lcov-result-merger 'FILE_PATTERN' ['OUTPUT_FILE']
+```
 
 # Examples
 
@@ -27,3 +29,10 @@ This tool will handle this for you.
 2. Run `./node_modules/.bin/lcov-result-merger 'build/coverage/coverage_*.log' 'target/coverage/coverage_merged.log'`
 3. Done. Enjoy your merged file.
 
+## Prepend source file paths
+Modify source file paths to be relative to the working directory that the merge operation was run in. Useful in
+monorepos where each child package gathers its own metrics.
+
+```bash
+./node_modules/.bin/lcov-result-merger 'FILE_PATTERN' ['OUTPUT_FILE'] --prepend-source-files
+```
