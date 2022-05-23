@@ -8,6 +8,7 @@
 
 var through = require('through2')
 var File = require('vinyl')
+var path = require('path')
 
 /**
  * Represents a DA record
@@ -272,12 +273,14 @@ function parseBRDA (currentCoverageFile, prefixSplit) {
 /**
  * Process a lcov input file into the representing Objects
  *
+ * @param {string}         sourceDir - The absolute path to the lcov file directory.
  * @param {string}         data
  * @param {CoverageFile[]} lcov
+ * @param {{}}             config
  *
  * @returns {CoverageFile[]}
  */
-function processFile (data, lcov) {
+function processFile (sourceDir, data, lcov, config) {
   var lines = data.split(/\r?\n/)
   var currentCoverageFile = null
 
@@ -293,7 +296,15 @@ function processFile (data, lcov) {
 
     switch (prefix) {
       case 'SF':
-        currentCoverageFile = parseSF(lcov, prefixSplit)
+        var sourceFileNameParts = prefixSplit
+
+        if (config['prepend-source-files']) {
+          var fullFilePathName = path.normalize(path.join(sourceDir, prefixSplit.slice(1).join(':')))
+          var rootRelPathName = path.relative(process.cwd(), fullFilePathName)
+          sourceFileNameParts = [prefix].concat(('./' + rootRelPathName).split(':'))
+        }
+
+        currentCoverageFile = parseSF(lcov, sourceFileNameParts)
         break
       case 'DA':
         parseDA(currentCoverageFile, prefixSplit)
@@ -321,7 +332,7 @@ function createRecords (coverageFiles) {
   }).join('')
 }
 
-module.exports = function () {
+module.exports = function (config) {
   var coverageFiles = []
   return through.obj(function process (file, encoding, callback) {
     if (file.isNull()) {
@@ -331,7 +342,7 @@ module.exports = function () {
     if (file.isStream()) {
       throw new Error('Streaming not supported')
     }
-    coverageFiles = processFile(file.contents.toString(), coverageFiles)
+    coverageFiles = processFile(file.dirname, file.contents.toString(), coverageFiles, config || {})
     callback()
   }, function flush () {
     var file = new File({

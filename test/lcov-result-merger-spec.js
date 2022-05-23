@@ -47,4 +47,11 @@ describe('lcovResultMerger', function () {
       .pipe(lcovResultMerger())
     return actual.should.produce.sameFilesAs(expected)
   })
+
+  it('should optionally prepend source file lines', function () {
+    var expected = fs.src('./test/expected/prepended/lcov.info')
+    var actual = fs.src('./test/fixtures/basic/*/lcov.info')
+      .pipe(lcovResultMerger({ 'prepend-source-files': true }))
+    return actual.should.produce.sameFilesAs(expected)
+  })
 })
