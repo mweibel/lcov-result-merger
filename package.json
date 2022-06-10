@@ -39,8 +39,7 @@
   "readmeFilename": "README.md",
   "dependencies": {
     "through2": "^2.0.3",
-    "vinyl": "^2.1.0",
-    "vinyl-fs": "^3.0.2",
+    "glob-stream": "^7.0.0",
     "yargs": "^16.2.0"
   },
   "devDependencies": {
@@ -62,7 +61,7 @@
     "travis-deploy-once": "^5.0.0"
   },
   "engines": {
-    "node": ">=4"
+    "node": ">=10"
   },
   "config": {
     "commitizen": {

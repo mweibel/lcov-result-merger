@@ -7,7 +7,7 @@
  */
 
 var through = require('through2')
-var File = require('vinyl')
+var fs = require('fs')
 var path = require('path')
 
 /**
@@ -334,21 +334,19 @@ function createRecords (coverageFiles) {
 
 module.exports = function (config) {
   var coverageFiles = []
-  return through.obj(function process (file, encoding, callback) {
-    if (file.isNull()) {
+  return through.obj(function process ({ cwd: dirName, path: filePath }, encoding, callback) {
+    if (!fs.existsSync(filePath)) {
       callback()
       return
     }
-    if (file.isStream()) {
-      throw new Error('Streaming not supported')
-    }
-    coverageFiles = processFile(file.dirname, file.contents.toString(), coverageFiles, config || {})
+    var file = fs.openSync("lcov.info", "r")
+    var fileContentStr = fs.readSync(file, "utf8")
+    coverageFiles = processFile(dirName, fileContentStr, coverageFiles, config || {})
+    fs.closeSync(file)
     callback()
   }, function flush () {
-    var file = new File({
-      path: 'lcov.info',
-      contents: Buffer.from(createRecords(coverageFiles))
-    })
+    var file = fs.openSync("lcov.info", "w+")
+    fs.writeSync(file, Buffer.from(createRecords(coverageFiles)))
     this.push(file)
     this.emit('end')
   })

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const vfs = require('vinyl-fs')
+var gs = require('glob-stream');
 const through = require('through2')
 const fs = require('fs')
 const lcovResultMerger = require('../index')
@@ -29,12 +29,13 @@ const args = yargs(hideBin(process.argv))
   })
   .argv
 
-vfs.src(args.pattern)
+gs(args.pattern)
   .pipe(lcovResultMerger(args))
   .pipe(through.obj((file) => {
+    const fileContentStr = fs.readSync(file, "utf8")
     if (args.outFile) {
-      fs.writeFileSync(args.outFile, file.contents)
+      fs.writeFileSync(args.outFile, fileContentStr)
     } else {
-      process.stdout.write(file.contents)
+      process.stdout.write(fileContentStr)
     }
   }))
