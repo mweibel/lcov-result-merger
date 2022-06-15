@@ -51,6 +51,13 @@ describe('lcovResultMerger', function () {
   it('should optionally prepend source file lines', function () {
     var expected = fs.src('./test/expected/prepended/lcov.info')
     var actual = fs.src('./test/fixtures/basic/*/lcov.info')
+      .pipe(lcovResultMerger({ 'prepend-source-files': true, 'prepend-path-fix': '' }))
+    return actual.should.produce.sameFilesAs(expected)
+  })
+
+  it('should optionally prepend source file lines with corrected pathing', function () {
+    var expected = fs.src('./test/expected/prepended-path-fix/lcov.info')
+    var actual = fs.src('./test/fixtures/coverage-subfolder/*/coverage/lcov.info')
       .pipe(lcovResultMerger({ 'prepend-source-files': true }))
     return actual.should.produce.sameFilesAs(expected)
   })

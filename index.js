@@ -299,7 +299,9 @@ function processFile (sourceDir, data, lcov, config) {
         var sourceFileNameParts = prefixSplit
 
         if (config['prepend-source-files']) {
-          var fullFilePathName = path.normalize(path.join(sourceDir, prefixSplit.slice(1).join(':')))
+          const pathFix = typeof config['prepend-path-fix'] === 'string' ? config['prepend-path-fix'] : '..'
+
+          var fullFilePathName = path.normalize(path.join(sourceDir, pathFix, prefixSplit.slice(1).join(':')))
           var rootRelPathName = path.relative(process.cwd(), fullFilePathName)
           sourceFileNameParts = [prefix].concat(('./' + rootRelPathName).split(':'))
         }

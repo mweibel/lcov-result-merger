@@ -15,10 +15,10 @@ chai.should()
  * @param {string[]} [commands]
  * @returns {Promise<string>}
  */
-async function runCli (commands) {
+async function runCli (commands, sourceFiles) {
   const args = [
     './bin/lcov-result-merger.js',
-    '"./test/fixtures/basic/*/lcov.info"'
+    (sourceFiles || '"./test/fixtures/basic/*/lcov.info"')
   ].concat(commands || [])
 
   const { stdout } = await execa('node', args)
@@ -28,7 +28,7 @@ async function runCli (commands) {
 /**
  * Read the contents from the relevant "expected" fixture file.
  *
- * @param {'basic'|'prepended'} type
+ * @param {'basic'|'prepended'|'prepended-path-fix'} type
  * @returns {string}
  */
 function getExpected (type) {
@@ -62,8 +62,13 @@ describe('lcovResultMerger CLI', function () {
   })
 
   it('should optionally prepend source file lines', async function () {
-    const actual = await runCli(['--prepend-source-files'])
+    const actual = await runCli(['--prepend-source-files', '--prepend-path-fix=""'])
     actual.should.equal(getExpected('prepended'))
+  })
+
+  it('should optionally prepend source file lines with corrected pathing', async function () {
+    const actual = await runCli(['--prepend-source-files'], '"./test/fixtures/coverage-subfolder/*/coverage/lcov.info"')
+    actual.should.equal(getExpected('prepended-path-fix'))
   })
 
   it('should combine to given records into one output file', async function () {
@@ -77,10 +82,19 @@ describe('lcovResultMerger CLI', function () {
 
   it('should optionally prepend source file lines into one output file', async function () {
     const tmpFile = makeTmpFilePath()
-    await runCli([tmpFile, '--prepend-source-files'])
+    await runCli([tmpFile, '--prepend-source-files', '--prepend-path-fix=""'])
     const actual = fs.readFileSync(tmpFile, 'utf-8')
 
     actual.trim().should.equal(getExpected('prepended'))
+    cleanTmpDirectory(tmpFile)
+  })
+
+  it('should optionally prepend source file lines into one output file with corrected pathing', async function () {
+    const tmpFile = makeTmpFilePath()
+    await runCli([tmpFile, '--prepend-source-files'], '"./test/fixtures/coverage-subfolder/*/coverage/lcov.info"')
+    const actual = fs.readFileSync(tmpFile, 'utf-8')
+
+    actual.trim().should.equal(getExpected('prepended-path-fix'))
     cleanTmpDirectory(tmpFile)
   })
 })

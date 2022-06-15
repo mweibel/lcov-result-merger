@@ -24,6 +24,12 @@ const args = yargs(hideBin(process.argv))
           type: 'boolean',
           default: false,
           description: 'Modify source file paths to be relative to the working directory that the merge operation was run in'
+        },
+        'prepend-path-fix': {
+          type: 'string',
+          default: '..',
+          description: 'If using --prepend-source-files, this is needed to describe the relative path from the lcov ' +
+            'directory to the project root.'
         }
       })
   })
