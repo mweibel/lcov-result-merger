@@ -20,7 +20,7 @@ const args = yargs(hideBin(process.argv))
         description: 'A file to write the merged lcov to'
       })
       .options({
-        'prefix-source-files': {
+        'prepend-source-files': {
           type: 'boolean',
           default: false,
           description: 'Modify source file paths to be relative to the working directory that the merge operation was run in'
