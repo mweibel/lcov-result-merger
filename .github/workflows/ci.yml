@@ -18,7 +18,7 @@ jobs:
 
       - name: Run Tests
         run: |
-          npm install
+          npm install --legacy-peer-deps
           npm run test-coverage
       - name: Coveralls
         uses: coverallsapp/github-action@master
