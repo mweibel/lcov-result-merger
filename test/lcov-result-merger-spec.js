@@ -54,4 +54,15 @@ describe('lcovResultMerger', function () {
     var actual = fs.readFileSync('lcov.info', 'utf8')
     return actual.should.equal(expected)
   })
+
+  it('should optionally prepend source file lines with corrected pathing', function () {
+    var expected = fs.readFileSync('./test/expected/prepended-path-fix/lcov.info')
+    await new Promise((res) => {
+      fg.stream('./test/fixtures/coverage-subfolder/*/coverage/lcov.info')
+        .pipe(lcovResultMerger({ 'prepend-source-files': true }))
+        .on('end', res)
+    })
+    var actual = fs.readFileSync('lcov.info', 'utf8')
+    return actual.should.equal(expected)
+  })
 })

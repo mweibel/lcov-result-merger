@@ -37,3 +37,11 @@ monorepos where each child package gathers its own metrics.
 ```bash
 ./node_modules/.bin/lcov-result-merger 'FILE_PATTERN' ['OUTPUT_FILE'] --prepend-source-files
 ```
+
+Since coverage output is rarely written directly into the project root, use `--prepend-path-fix` to describe the
+relative path between the lcov file and the project root. The default simply points to one directory up, "..", which
+works well for common tools such as [NYC](https://github.com/istanbuljs/nyc) that write to a `/coverage` directory.
+
+```bash
+./node_modules/.bin/lcov-result-merger 'FILE_PATTERN' ['OUTPUT_FILE'] --prepend-source-files --prepend-path-fix "../src"
+```
