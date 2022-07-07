@@ -334,20 +334,20 @@ function createRecords (coverageFiles) {
 
 module.exports = function (config) {
   var coverageFiles = []
-  return through.obj(function process ({ cwd: dirName, path: filePath }, encoding, callback) {
+  return through.obj(function (filePath, encoding, callback) {
     if (!fs.existsSync(filePath)) {
       callback()
       return
     }
-    var file = fs.openSync("lcov.info", "r")
-    var fileContentStr = fs.readSync(file, "utf8")
-    coverageFiles = processFile(dirName, fileContentStr, coverageFiles, config || {})
+    var file = fs.openSync(filePath, "r")
+    var fileContentStr = fs.readFileSync(file, "utf8")
+    coverageFiles = processFile(path.dirname(filePath), fileContentStr, coverageFiles, config || {})
     fs.closeSync(file)
     callback()
   }, function flush () {
     var file = fs.openSync("lcov.info", "w+")
-    fs.writeSync(file, Buffer.from(createRecords(coverageFiles)))
-    this.push(file)
+    fs.writeFileSync(file, Buffer.from(createRecords(coverageFiles)))
+    this.push("lcov.info")
     this.emit('end')
   })
 }

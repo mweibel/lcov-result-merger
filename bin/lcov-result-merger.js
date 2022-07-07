@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var gs = require('glob-stream');
+var fg = require('fast-glob');
 const through = require('through2')
 const fs = require('fs')
 const lcovResultMerger = require('../index')
@@ -29,13 +29,15 @@ const args = yargs(hideBin(process.argv))
   })
   .argv
 
-gs(args.pattern)
+fg.stream(args.pattern)
   .pipe(lcovResultMerger(args))
-  .pipe(through.obj((file) => {
-    const fileContentStr = fs.readSync(file, "utf8")
+  .pipe(through.obj((filePath) => {
+    const file = fs.openSync(filePath, "r+")
+    const fileContentStr = fs.readFileSync(file, "utf8")
     if (args.outFile) {
       fs.writeFileSync(args.outFile, fileContentStr)
     } else {
       process.stdout.write(fileContentStr)
     }
+    fs.closeSync(file)
   }))
