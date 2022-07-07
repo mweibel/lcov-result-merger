@@ -60,7 +60,7 @@
     "travis-deploy-once": "^3.0.0"
   },
   "engines": {
-    "node": ">=10"
+    "node": ">=14"
   },
   "config": {
     "commitizen": {
