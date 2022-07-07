@@ -6,7 +6,7 @@ notifications:
   email: false
 node_js:
   - 'lts/*'
-  - '10'
+  - '14'
 jobs:
   allow_failures:
     node_js: 'lts/*'
