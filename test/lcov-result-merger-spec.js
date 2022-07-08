@@ -1,64 +1,68 @@
 /* eslint-env mocha */
 
-var fs = require('vinyl-fs')
-var File = require('vinyl')
-var through = require('through2')
+var fg = require('fast-glob')
+var fs = require('fs')
 var chai = require('chai')
-var chaiGulpHelpers = require('chai-gulp-helpers')
 var lcovResultMerger = require('../index.js')
 
 chai.should()
-chai.use(chaiGulpHelpers)
 
 describe('lcovResultMerger', function () {
-  it('should combine the given records into one', function () {
-    var expected = fs.src('./test/expected/basic/lcov.info')
-    var actual = fs.src('./test/fixtures/basic/*/lcov.info')
-      .pipe(lcovResultMerger())
-    return actual.should.produce.sameFilesAs(expected)
+  it('should combine the given records into one', async function () {
+    var expected = fs.readFileSync('./test/expected/basic/lcov.info', 'utf8')
+    await new Promise((res) => {
+      fg.stream('./test/fixtures/basic/*/lcov.info')
+        .pipe(lcovResultMerger())
+        .on('end', res)
+    })
+    var actual = fs.readFileSync('lcov.info', 'utf8')
+    return actual.should.equal(expected)
   })
 
   it('should ignore null files', function (callback) {
     var stream = lcovResultMerger()
     stream.on('data', function (file) {
-      file.contents.toString().should.equal('')
+      var fileContentStr = fs.readFileSync(file, "utf8")
+      fileContentStr.should.equal('')
       callback()
     })
-    stream.write(new File({
+    stream.write({
+      cwd: './',
       path: '/meow.html',
-      contents: null
-    }))
+    })
     stream._flush()
   })
 
-  it('should throw an error if streaming is attempted', function () {
-    var stream = lcovResultMerger()
-    void function () {
-      stream.write(new File({
-        path: '/foo.html',
-        contents: through.obj()
-      }))
-    }.should.throw('Streaming not supported')
+  it('should handle a record with : in the name', async function () {
+      var expected = fs.readFileSync('./test/expected/windows/lcov.info', 'utf8')
+      await new Promise((res) => {
+        fg.stream('./test/fixtures/windows/lcov.info')
+          .pipe(lcovResultMerger())
+          .on('end', res)
+      })
+      var actual = fs.readFileSync('lcov.info', 'utf8')
+      return actual.should.equal(expected)
   })
 
-  it('should handle a record with : in the name', function () {
-    var expected = fs.src('./test/expected/windows/lcov.info')
-    var actual = fs.src('./test/fixtures/windows/lcov.info')
-      .pipe(lcovResultMerger())
-    return actual.should.produce.sameFilesAs(expected)
+  it('should optionally prepend source file lines', async function () {
+    var expected = fs.readFileSync('./test/expected/prepended/lcov.info', 'utf8')
+    await new Promise((res) => {
+      fg.stream('./test/fixtures/basic/*/lcov.info')
+        .pipe(lcovResultMerger({ 'prepend-source-files': true, 'prepend-path-fix': ''  }))
+        .on('end', res)
+    })
+    var actual = fs.readFileSync('lcov.info', 'utf8')
+    return actual.should.equal(expected)
   })
 
-  it('should optionally prepend source file lines', function () {
-    var expected = fs.src('./test/expected/prepended/lcov.info')
-    var actual = fs.src('./test/fixtures/basic/*/lcov.info')
-      .pipe(lcovResultMerger({ 'prepend-source-files': true, 'prepend-path-fix': '' }))
-    return actual.should.produce.sameFilesAs(expected)
-  })
-
-  it('should optionally prepend source file lines with corrected pathing', function () {
-    var expected = fs.src('./test/expected/prepended-path-fix/lcov.info')
-    var actual = fs.src('./test/fixtures/coverage-subfolder/*/coverage/lcov.info')
-      .pipe(lcovResultMerger({ 'prepend-source-files': true }))
-    return actual.should.produce.sameFilesAs(expected)
+  it('should optionally prepend source file lines with corrected pathing', async function () {
+    var expected = fs.readFileSync('./test/expected/prepended-path-fix/lcov.info', 'utf8')
+    await new Promise((res) => {
+      fg.stream('./test/fixtures/coverage-subfolder/*/coverage/lcov.info')
+        .pipe(lcovResultMerger({ 'prepend-source-files': true }))
+        .on('end', res)
+    })
+    var actual = fs.readFileSync('lcov.info', 'utf8')
+    return actual.should.equal(expected)
   })
 })
