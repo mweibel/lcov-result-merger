@@ -67,7 +67,7 @@
       "path": "./node_modules/cz-conventional-changelog"
     }
   },
-  "version": "3.3.0",
+  "version": "4.0.0",
   "volta": {
     "node": "10.23.1",
     "npm": "7.18.1"
