@@ -35,7 +35,7 @@ const args = yargs(hideBin(process.argv))
   })
   .argv
 
-fg.stream(args.pattern)
+fg.stream(args.pattern, { absolute: true })
   .pipe(lcovResultMerger(args))
   .pipe(through.obj((filePath) => {
     const file = fs.openSync(filePath, "r+")
