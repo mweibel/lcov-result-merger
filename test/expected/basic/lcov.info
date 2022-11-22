@@ -1,6 +1,3 @@
-SF:./src/index.js
-DA:1,2
-end_of_record
 SF:./src/Foo.js
 DA:1,2
 DA:4,2
@@ -22,4 +19,7 @@ DA:37,2
 BRDA:24,1,0,2
 BRDA:24,1,1,16
 BRDA:24,1,2,-
+end_of_record
+SF:./src/index.js
+DA:1,2
 end_of_record

@@ -329,9 +329,14 @@ function processFile (sourceDir, data, lcov, config) {
  * @returns {string}
  */
 function createRecords (coverageFiles) {
-  return coverageFiles.map(function (coverageFile) {
-    return coverageFile.toString()
-  }).join('')
+  return coverageFiles
+    .sort(function (fileA, fileB) {
+      return fileA.filename.localeCompare(fileB.filename)
+    })
+    .map(function (coverageFile) {
+      return coverageFile.toString()
+    })
+    .join('')
 }
 
 module.exports = function (config) {
