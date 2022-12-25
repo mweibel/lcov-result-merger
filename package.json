@@ -48,10 +48,13 @@
     "coveralls": "^3.0.0",
     "cz-conventional-changelog": "^3.0.1",
     "eslint": "^8.30.0",
+    "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^4.2.1",
     "execa": "^5.1.1",
     "istanbul": "^0.4.5",
     "mocha": "^10.0.0",
+    "prettier": "2.8.1",
     "rimraf": "^2.6.3",
     "semantic-release": "^19.0.3",
     "travis-deploy-once": "^3.0.0"
