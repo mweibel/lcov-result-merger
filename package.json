@@ -7,7 +7,7 @@
     "bin"
   ],
   "scripts": {
-    "lint": "standard",
+    "lint": "eslint . --cache",
     "test": "mocha -R spec test --bail",
     "test-coverage": "istanbul cover _mocha --report lcovonly -- -R spec test --bail",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
@@ -47,16 +47,13 @@
     "chai": "^4.1.2",
     "coveralls": "^3.0.0",
     "cz-conventional-changelog": "^3.0.1",
-    "eslint": "^5.16.0",
-    "eslint-config-standard": "^11.0.0",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^3.0.1",
+    "eslint": "^8.30.0",
+    "eslint-plugin-node": "^11.1.0",
     "execa": "^5.1.1",
     "istanbul": "^0.4.5",
     "mocha": "^10.0.0",
     "rimraf": "^2.6.3",
     "semantic-release": "^19.0.3",
-    "standard": "^17.0.0",
     "travis-deploy-once": "^3.0.0"
   },
   "engines": {

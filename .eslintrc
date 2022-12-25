@@ -1,1 +1,15 @@
-{"extends": ["standard"]}
+{
+  "extends": [
+    "eslint:recommended",
+    "plugin:node/recommended"
+  ],
+
+  "parserOptions": {
+    "ecmaVersion": 2020
+  },
+
+  "rules": {
+    "no-var": "error",
+    "prefer-const": "error"
+  }
+}

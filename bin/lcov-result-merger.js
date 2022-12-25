@@ -1,6 +1,5 @@
 #!/usr/bin/env node
-
-var fg = require('fast-glob');
+const fg = require('fast-glob');
 const through = require('through2')
 const fs = require('fs')
 const lcovResultMerger = require('../index')

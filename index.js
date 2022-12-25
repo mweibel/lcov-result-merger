@@ -6,9 +6,9 @@
  * @license MIT
  */
 
-var through = require('through2')
-var fs = require('fs')
-var path = require('path')
+const through = require('through2')
+const fs = require('fs')
+const path = require('path')
 
 /**
  * Represents a DA record
@@ -55,7 +55,7 @@ function BRDA (lineNumber, blockNumber, branchNumber, hits) {
  * @returns {string}
  */
 BRDA.prototype.toString = function () {
-  var str = 'BRDA:'
+  let str = 'BRDA:'
   str += [this.lineNumber, this.blockNumber, this.branchNumber, this.hits].join(',')
   str += '\n'
 
@@ -63,7 +63,7 @@ BRDA.prototype.toString = function () {
 }
 
 /**
- * Represents a coverage file and it's DA/BRDA records
+ * Represents a coverage file, and it's DA/BRDA records
  *
  * @param {string} filename
  *
@@ -81,10 +81,10 @@ function CoverageFile (filename) {
  * @returns {string}
  */
 CoverageFile.prototype.toString = function () {
-  var header = 'SF:' + this.filename + '\n'
-  var footer = 'end_of_record\n'
+  const header = 'SF:' + this.filename + '\n'
+  const footer = 'end_of_record\n'
 
-  var body = this.DARecords.map(function (daRecord) {
+  let body = this.DARecords.map(function (daRecord) {
     return daRecord.toString()
   }).join('')
 
@@ -104,8 +104,8 @@ CoverageFile.prototype.toString = function () {
  * @returns {DA|null}
  */
 function findDA (source, lineNumber) {
-  for (var i = 0; i < source.length; i++) {
-    var da = source[i]
+  for (let i = 0; i < source.length; i++) {
+    const da = source[i]
     if (da.lineNumber === lineNumber) {
       return da
     }
@@ -124,8 +124,8 @@ function findDA (source, lineNumber) {
  * @returns {BRDA|null}
  */
 function findBRDA (source, blockNumber, branchNumber, lineNumber) {
-  for (var i = 0; i < source.length; i++) {
-    var brda = source[i]
+  for (let i = 0; i < source.length; i++) {
+    const brda = source[i]
     if (brda.blockNumber === blockNumber &&
       brda.branchNumber === branchNumber &&
       brda.lineNumber === lineNumber) {
@@ -144,8 +144,8 @@ function findBRDA (source, blockNumber, branchNumber, lineNumber) {
  * @returns {CoverageFile|null}
  */
 function findCoverageFile (source, filename) {
-  for (var i = 0; i < source.length; i++) {
-    var file = source[i]
+  for (let i = 0; i < source.length; i++) {
+    const file = source[i]
     if (file.filename === filename) {
       return file
     }
@@ -177,7 +177,7 @@ function numericHits (hits) {
  */
 function mergedBRDAHits (existingBRDAHits, newBRDAHits) {
   // If we've never executed the branch code path in an existing coverage
-  // record and we've never executed it here either, then keep it as '-'
+  // record, and we've never executed it here either, then keep it as '-'
   // (eg, never executed). If either of them is a number, then
   // use the number value.
   if (existingBRDAHits !== '-' || newBRDAHits !== '-') {
@@ -200,7 +200,7 @@ function splitNumbers (prefixSplit) {
 }
 
 /**
- * Parses a SF section
+ * Parses an SF section
  *
  * @param {CoverageFile[]} lcov
  * @param {string[]}       prefixSplit
@@ -210,8 +210,8 @@ function splitNumbers (prefixSplit) {
 function parseSF (lcov, prefixSplit) {
   // If the filepath contains a ':', we want to preserve it.
   prefixSplit.shift()
-  var currentFileName = prefixSplit.join(':')
-  var currentCoverageFile = findCoverageFile(lcov, currentFileName)
+  const currentFileName = prefixSplit.join(':')
+  let currentCoverageFile = findCoverageFile(lcov, currentFileName)
   if (currentCoverageFile) {
     return currentCoverageFile
   }
@@ -228,11 +228,11 @@ function parseSF (lcov, prefixSplit) {
  * @param {string[]}     prefixSplit
  */
 function parseDA (currentCoverageFile, prefixSplit) {
-  var numberSplit = splitNumbers(prefixSplit)
-  var lineNumber = parseInt(numberSplit[0], 10)
-  var hits = parseInt(numberSplit[1], 10)
+  const numberSplit = splitNumbers(prefixSplit)
+  const lineNumber = parseInt(numberSplit[0], 10)
+  const hits = parseInt(numberSplit[1], 10)
 
-  var existingDA = findDA(currentCoverageFile.DARecords, lineNumber)
+  const existingDA = findDA(currentCoverageFile.DARecords, lineNumber)
   if (existingDA) {
     existingDA.hits += hits
     return
@@ -248,19 +248,19 @@ function parseDA (currentCoverageFile, prefixSplit) {
  * @param {string[]}     prefixSplit
  */
 function parseBRDA (currentCoverageFile, prefixSplit) {
-  var numberSplit = splitNumbers(prefixSplit)
-  var lineNumber = parseInt(numberSplit[0], 10)
-  var blockNumber = parseInt(numberSplit[1], 10)
-  var branchNumber = parseInt(numberSplit[2], 10)
+  const numberSplit = splitNumbers(prefixSplit)
+  const lineNumber = parseInt(numberSplit[0], 10)
+  const blockNumber = parseInt(numberSplit[1], 10)
+  const branchNumber = parseInt(numberSplit[2], 10)
 
-  var existingBRDA = findBRDA(currentCoverageFile.BRDARecords,
+  const existingBRDA = findBRDA(currentCoverageFile.BRDARecords,
     blockNumber, branchNumber, lineNumber)
 
   // Special case, hits might be a '-'. This means that the code block
   // where the branch was contained was never executed at all (as opposed
   // to the code being executed, but the branch not being taken). Keep
   // it as a string and let mergedBRDAHits work it out.
-  var hits = numberSplit[3]
+  const hits = numberSplit[3]
 
   if (existingBRDA) {
     existingBRDA.hits = mergedBRDAHits(existingBRDA.hits, hits)
@@ -281,33 +281,34 @@ function parseBRDA (currentCoverageFile, prefixSplit) {
  * @returns {CoverageFile[]}
  */
 function processFile (sourceDir, data, lcov, config) {
-  var lines = data.split(/\r?\n/)
-  var currentCoverageFile = null
+  const lines = data.split(/\r?\n/)
+  let currentCoverageFile = null
 
-  for (var i = 0, l = lines.length; i < l; i++) {
-    var line = lines[i]
+  for (let i = 0, l = lines.length; i < l; i++) {
+    const line = lines[i]
     if (line === 'end_of_record' || line === '') {
       currentCoverageFile = null
       continue
     }
 
-    var prefixSplit = line.split(':')
-    var prefix = prefixSplit[0]
+    const prefixSplit = line.split(':')
+    const prefix = prefixSplit[0]
 
     switch (prefix) {
-      case 'SF':
-        var sourceFileNameParts = prefixSplit
+      case 'SF': {
+        let sourceFileNameParts = prefixSplit
 
         if (config['prepend-source-files']) {
           const pathFix = typeof config['prepend-path-fix'] === 'string' ? config['prepend-path-fix'] : '..'
 
-          var fullFilePathName = path.normalize(path.join(sourceDir, pathFix, prefixSplit.slice(1).join(':')))
-          var rootRelPathName = path.relative(process.cwd(), fullFilePathName)
+          const fullFilePathName = path.normalize(path.join(sourceDir, pathFix, prefixSplit.slice(1).join(':')))
+          const rootRelPathName = path.relative(process.cwd(), fullFilePathName)
           sourceFileNameParts = [prefix].concat(('./' + rootRelPathName).split(':'))
         }
 
         currentCoverageFile = parseSF(lcov, sourceFileNameParts)
         break
+      }
       case 'DA':
         parseDA(currentCoverageFile, prefixSplit)
         break
@@ -340,19 +341,19 @@ function createRecords (coverageFiles) {
 }
 
 module.exports = function (config) {
-  var coverageFiles = []
+  let coverageFiles = []
   return through.obj(function (filePath, encoding, callback) {
     if (!fs.existsSync(filePath)) {
       callback()
       return
     }
-    var file = fs.openSync(filePath, "r")
-    var fileContentStr = fs.readFileSync(file, "utf8")
+    const file = fs.openSync(filePath, "r")
+    const fileContentStr = fs.readFileSync(file, "utf8")
     coverageFiles = processFile(path.dirname(filePath), fileContentStr, coverageFiles, config || {})
     fs.closeSync(file)
     callback()
   }, function flush () {
-    var file = fs.openSync("lcov.info", "w+")
+    const file = fs.openSync("lcov.info", "w+")
     fs.writeFileSync(file, Buffer.from(createRecords(coverageFiles)))
     this.push("lcov.info")
     this.emit('end')
