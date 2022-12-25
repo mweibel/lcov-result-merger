@@ -11,21 +11,19 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         node-version: [14.x, 16.x, 18.x]
 
     steps:
       - uses: actions/checkout@v3
-      - uses: volta-cli/action@v1
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+      - uses: volta-cli/action@v3
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Run Tests
+      - name: Run Tests (Node ${{ matrix.node-version }})
         run: |
-          npm install --legacy-peer-deps
+          npm install
           npm run test-coverage
       - name: Coveralls
         uses: coverallsapp/github-action@master
