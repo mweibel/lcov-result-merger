@@ -368,20 +368,23 @@ module.exports = function (config) {
         callback();
         return;
       }
-      const file = fs.openSync(filePath, 'r');
-      const fileContentStr = fs.readFileSync(file, 'utf8');
+      const fileContentStr = fs.readFileSync(filePath, {
+        encoding: 'utf8',
+        flag: 'r'
+      });
       coverageFiles = processFile(
         path.dirname(filePath),
         fileContentStr,
         coverageFiles,
         config || {}
       );
-      fs.closeSync(file);
       callback();
     },
     function flush() {
-      const file = fs.openSync('lcov.info', 'w+');
-      fs.writeFileSync(file, Buffer.from(createRecords(coverageFiles)));
+      fs.writeFileSync('lcov.info', Buffer.from(createRecords(coverageFiles)), {
+        encoding: 'utf-8',
+        flag: 'w+'
+      });
       this.push('lcov.info');
       this.emit('end');
     }
