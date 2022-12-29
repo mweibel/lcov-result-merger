@@ -43,13 +43,16 @@ fg.stream(args.pattern, { absolute: true })
   .pipe(lcovResultMerger(args))
   .pipe(
     through.obj((filePath) => {
-      const file = fs.openSync(filePath, 'r+');
-      const fileContentStr = fs.readFileSync(file, 'utf8');
+      const fileContentStr = fs.readFileSync(filePath, {
+        encoding: 'utf-8',
+        flag: 'r+'
+      });
+      fs.unlinkSync(filePath);
+
       if (args.outFile) {
         fs.writeFileSync(args.outFile, fileContentStr);
       } else {
         process.stdout.write(fileContentStr);
       }
-      fs.closeSync(file);
     })
   );
