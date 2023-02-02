@@ -61,6 +61,14 @@ describe('lcovResultMerger CLI', function () {
     actual.should.equal(getExpected('basic'));
   });
 
+  it('should ignore paths with the --ignore option', async function () {
+    const actual = await runCli(
+      ['--ignore="**/extra.info"'],
+      '"./test/fixtures/ignore/*/*.info"'
+    );
+    actual.should.equal(getExpected('basic'));
+  });
+
   it('should optionally prepend source file lines', async function () {
     const actual = await runCli([
       '--prepend-source-files',
