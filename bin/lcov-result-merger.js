@@ -35,17 +35,22 @@ const args = yargs(hideBin(process.argv)).command(
             'If using --prepend-source-files, this is needed to describe the relative path from the lcov ' +
             'directory to the project root.',
         },
+        ignore: {
+          type: 'array',
+          default: [],
+          description: 'Pass globs to ignore file paths',
+        },
       });
   }
 ).argv;
 
-fg.stream(args.pattern, { absolute: true })
+fg.stream(args.pattern, { absolute: true, ignore: args.ignore })
   .pipe(lcovResultMerger(args))
   .pipe(
     through.obj((filePath) => {
       const fileContentStr = fs.readFileSync(filePath, {
         encoding: 'utf-8',
-        flag: 'r+'
+        flag: 'r+',
       });
       fs.unlinkSync(filePath);
 
