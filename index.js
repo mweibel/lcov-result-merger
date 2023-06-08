@@ -45,13 +45,31 @@ class BRDA {
    * @param {number} lineNumber
    * @param {number} blockNumber
    * @param {number} branchNumber
-   * @param {number} hits
+   * @param {number|"-"} hits
    */
   constructor(lineNumber, blockNumber, branchNumber, hits) {
     this.lineNumber = lineNumber;
     this.blockNumber = blockNumber;
     this.branchNumber = branchNumber;
     this.hits = hits;
+  }
+
+  /**
+   * @param {number|"-"} hits
+   */
+  addHits(hits) {
+    // If we've never executed the branch code path in an existing coverage
+    // record, and we've never executed it here either, then keep it as '-'
+    // (eg, never executed). If either of them is a number, then
+    // use the number value.
+    if (this.hits === '-' && hits === '-') {
+      return;
+    }
+
+    const oldHits = this.hits === '-' ? 0 : this.hits;
+    const newHits = hits === '-' ? 0 : hits;
+
+    this.hits = oldHits + newHits;
   }
 
   toString() {
@@ -120,6 +138,25 @@ class CoverageFile {
     );
   }
 
+  /**
+   * @param {number} lineNumber
+   * @param {number} blockNumber
+   * @param {number} branchNumber
+   * @param {number|"-"} hits
+   */
+  addBRDA(lineNumber, blockNumber, branchNumber, hits) {
+    const existingRecord = this.findBRDA(lineNumber, blockNumber, branchNumber);
+
+    if (existingRecord) {
+      existingRecord.addHits(hits);
+      return;
+    }
+
+    this.BRDARecords.push(
+      new BRDA(lineNumber, blockNumber, branchNumber, hits)
+    );
+  }
+
   toString() {
     return (
       `SF:${this.filename}\n` +
@@ -146,40 +183,6 @@ function findCoverageFile(source, filename) {
     }
   }
   return null;
-}
-
-/**
- * Returns appropriate number of hits based on the string value of hits.
- *
- * @param {string} hits
- *
- * @returns {number}
- */
-function numericHits(hits) {
-  if (hits === '-') {
-    return 0;
-  }
-  return parseInt(hits, 10);
-}
-
-/**
- * Merges BRDA hits.
- *
- * @param {string} existingBRDAHits
- * @param {string} newBRDAHits
- *
- * @returns {number|string}
- */
-function mergedBRDAHits(existingBRDAHits, newBRDAHits) {
-  // If we've never executed the branch code path in an existing coverage
-  // record, and we've never executed it here either, then keep it as '-'
-  // (eg, never executed). If either of them is a number, then
-  // use the number value.
-  if (existingBRDAHits !== '-' || newBRDAHits !== '-') {
-    return numericHits(existingBRDAHits) + numericHits(newBRDAHits);
-  }
-
-  return '-';
 }
 
 /**
@@ -242,26 +245,13 @@ function parseBRDA(currentCoverageFile, prefixSplit) {
   const blockNumber = parseInt(numberSplit[1], 10);
   const branchNumber = parseInt(numberSplit[2], 10);
 
-  const existingBRDA = currentCoverageFile.findBRDA(
-    lineNumber,
-    blockNumber,
-    branchNumber
-  );
-
   // Special case, hits might be a '-'. This means that the code block
   // where the branch was contained was never executed at all (as opposed
   // to the code being executed, but the branch not being taken). Keep
   // it as a string and let mergedBRDAHits work it out.
-  const hits = numberSplit[3];
+  const hits = numberSplit[3] === '-' ? '-' : parseInt(numberSplit[3], 10);
 
-  if (existingBRDA) {
-    existingBRDA.hits = mergedBRDAHits(existingBRDA.hits, hits);
-    return;
-  }
-
-  currentCoverageFile.BRDARecords.push(
-    new BRDA(lineNumber, blockNumber, branchNumber, hits)
-  );
+  currentCoverageFile.addBRDA(lineNumber, blockNumber, branchNumber, hits);
 }
 
 /**
