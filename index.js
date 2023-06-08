@@ -30,18 +30,6 @@ function findCoverageFile(source, filename) {
 }
 
 /**
- * Splits the second part of the prefix into an array. The array
- * is a list of strings which represent numbers.
- *
- * @param {string[]} prefixSplit
- *
- * @returns {string[]}
- */
-function splitNumbers(prefixSplit) {
-  return prefixSplit[1].split(',');
-}
-
-/**
  * Parses an SF section
  *
  * @param {CoverageFile[]} lcov
@@ -61,41 +49,6 @@ function parseSF(lcov, prefixSplit) {
   lcov.push(currentCoverageFile);
 
   return currentCoverageFile;
-}
-
-/**
- * Parses a DA section
- *
- * @param {CoverageFile} currentCoverageFile
- * @param {string[]}     prefixSplit
- */
-function parseDA(currentCoverageFile, prefixSplit) {
-  const numberSplit = splitNumbers(prefixSplit);
-  const lineNumber = parseInt(numberSplit[0], 10);
-  const hits = parseInt(numberSplit[1], 10);
-
-  currentCoverageFile.addDA(lineNumber, hits);
-}
-
-/**
- * Parses a BRDA section
- *
- * @param {CoverageFile} currentCoverageFile
- * @param {string[]}     prefixSplit
- */
-function parseBRDA(currentCoverageFile, prefixSplit) {
-  const numberSplit = splitNumbers(prefixSplit);
-  const lineNumber = parseInt(numberSplit[0], 10);
-  const blockNumber = parseInt(numberSplit[1], 10);
-  const branchNumber = parseInt(numberSplit[2], 10);
-
-  // Special case, hits might be a '-'. This means that the code block
-  // where the branch was contained was never executed at all (as opposed
-  // to the code being executed, but the branch not being taken). Keep
-  // it as a string and let mergedBRDAHits work it out.
-  const hits = numberSplit[3] === '-' ? '-' : parseInt(numberSplit[3], 10);
-
-  currentCoverageFile.addBRDA(lineNumber, blockNumber, branchNumber, hits);
 }
 
 /**
@@ -148,11 +101,13 @@ function processFile(sourceDir, data, lcov, config) {
         break;
       }
       case 'DA':
-        parseDA(currentCoverageFile, prefixSplit);
+        currentCoverageFile.parseDA(prefixSplit[1]);
         break;
+
       case 'BRDA':
-        parseBRDA(currentCoverageFile, prefixSplit);
+        currentCoverageFile.parseBRDA(prefixSplit[1]);
         break;
+
       default:
       // do nothing with not implemented prefixes
     }
