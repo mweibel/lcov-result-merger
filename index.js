@@ -11,132 +11,123 @@ const fs = require('fs');
 const path = require('path');
 
 /**
- * Represents a DA record
- *
- * @param {number} lineNumber
- * @param {number} hits
- *
- * @constructor
+ * Represents a "DA" entry, which records the hit count of
+ * a line of code.
  */
-function DA(lineNumber, hits) {
-  this.lineNumber = lineNumber;
-  this.hits = hits;
-}
-
-/**
- * Generates a DA string
- *
- * @returns {string}
- */
-DA.prototype.toString = function () {
-  return 'DA:' + this.lineNumber + ',' + this.hits + '\n';
-};
-
-/**
- * Represents a BRDA record
- *
- * @param {number} lineNumber
- * @param {number} blockNumber
- * @param {number} branchNumber
- * @param {number} hits
- *
- * @constructor
- */
-function BRDA(lineNumber, blockNumber, branchNumber, hits) {
-  this.lineNumber = lineNumber;
-  this.blockNumber = blockNumber;
-  this.branchNumber = branchNumber;
-  this.hits = hits;
-}
-
-/**
- * Generates a BRDA string
- *
- * @returns {string}
- */
-BRDA.prototype.toString = function () {
-  let str = 'BRDA:';
-  str += [this.lineNumber, this.blockNumber, this.branchNumber, this.hits].join(
-    ','
-  );
-  str += '\n';
-
-  return str;
-};
-
-/**
- * Represents a coverage file, and it's DA/BRDA records
- *
- * @param {string} filename
- *
- * @constructor
- */
-function CoverageFile(filename) {
-  this.filename = filename;
-  this.DARecords = [];
-  this.BRDARecords = [];
-}
-
-/**
- * Generates a coverage report for a file.
- *
- * @returns {string}
- */
-CoverageFile.prototype.toString = function () {
-  const header = 'SF:' + this.filename + '\n';
-  const footer = 'end_of_record\n';
-
-  let body = this.DARecords.map(function (daRecord) {
-    return daRecord.toString();
-  }).join('');
-
-  body += this.BRDARecords.map(function (brdaRecord) {
-    return brdaRecord.toString();
-  }).join('');
-
-  return header + body + footer;
-};
-
-/**
- * Find an existing DA record
- *
- * @param {DA[]}     source
- * @param {number} lineNumber
- *
- * @returns {DA|null}
- */
-function findDA(source, lineNumber) {
-  for (let i = 0; i < source.length; i++) {
-    const da = source[i];
-    if (da.lineNumber === lineNumber) {
-      return da;
-    }
+class DA {
+  /**
+   * @param {number} lineNumber
+   * @param {number} hits
+   */
+  constructor(lineNumber, hits) {
+    this.lineNumber = lineNumber;
+    this.hits = hits;
   }
-  return null;
+
+  /**
+   * @param {number} hits
+   */
+  addHits(hits) {
+    this.hits += hits;
+  }
+
+  toString() {
+    return `DA:${this.lineNumber},${this.hits}\n`;
+  }
 }
 
 /**
- * Find an existing BRDA record
- *
- * @param {BRDA[]}   source
- * @param {number} blockNumber
- * @param {number} branchNumber
- * @param {number} lineNumber
- *
- * @returns {BRDA|null}
+ * Represents a BRDA entry, which records the hit count
+ * of a logical branch in code.
  */
-function findBRDA(source, blockNumber, branchNumber, lineNumber) {
-  for (let i = 0; i < source.length; i++) {
-    const brda = source[i];
-    if (
-      brda.blockNumber === blockNumber &&
-      brda.branchNumber === branchNumber &&
-      brda.lineNumber === lineNumber
-    ) {
-      return brda;
-    }
+class BRDA {
+  /**
+   * @param {number} lineNumber
+   * @param {number} blockNumber
+   * @param {number} branchNumber
+   * @param {number} hits
+   */
+  constructor(lineNumber, blockNumber, branchNumber, hits) {
+    this.lineNumber = lineNumber;
+    this.blockNumber = blockNumber;
+    this.branchNumber = branchNumber;
+    this.hits = hits;
   }
-  return null;
+
+  toString() {
+    const { lineNumber, blockNumber, branchNumber, hits } = this;
+    return `BRDA:${lineNumber},${blockNumber},${branchNumber},${hits}\n`;
+  }
+}
+
+/**
+ * Represents a coverage file, and it's DA/BRDA records.
+ */
+class CoverageFile {
+  /**
+   * @param {string} filename
+   */
+  constructor(filename) {
+    this.filename = filename;
+    this.DARecords = [];
+    this.BRDARecords = [];
+  }
+
+  /**
+   * Finds and returns an existing DA entry via its line number.
+   *
+   * @param {number} lineNumber
+   *
+   * @returns {DA|undefined}
+   */
+  findDA(lineNumber) {
+    return this.DARecords.find((record) => record.lineNumber === lineNumber);
+  }
+
+  /**
+   * Creates a new DA record, or adds the hit count to an existing
+   * record if available.
+   *
+   * @param {number} lineNumber
+   * @param {number} hits
+   */
+  addDA(lineNumber, hits) {
+    const existingRecord = this.findDA(lineNumber);
+
+    if (existingRecord) {
+      existingRecord.addHits(hits);
+      return;
+    }
+
+    this.DARecords.push(new DA(lineNumber, hits));
+  }
+
+  /**
+   * Finds and returns an existing BRDA entry.
+   *
+   * @param {number} lineNumber
+   * @param {number} blockNumber
+   * @param {number} branchNumber
+   *
+   * @returns {BRDA|undefined}
+   */
+  findBRDA(lineNumber, blockNumber, branchNumber) {
+    return this.BRDARecords.find(
+      (record) =>
+        record.lineNumber === lineNumber &&
+        record.blockNumber === blockNumber &&
+        record.branchNumber === branchNumber
+    );
+  }
+
+  toString() {
+    return (
+      `SF:${this.filename}\n` +
+      this.DARecords.map((record) => record.toString()).join('') +
+      this.BRDARecords.map((record) => record.toString()).join('') +
+      'end_of_record\n'
+    );
+  }
 }
 
 /**
@@ -236,13 +227,7 @@ function parseDA(currentCoverageFile, prefixSplit) {
   const lineNumber = parseInt(numberSplit[0], 10);
   const hits = parseInt(numberSplit[1], 10);
 
-  const existingDA = findDA(currentCoverageFile.DARecords, lineNumber);
-  if (existingDA) {
-    existingDA.hits += hits;
-    return;
-  }
-
-  currentCoverageFile.DARecords.push(new DA(lineNumber, hits));
+  currentCoverageFile.addDA(lineNumber, hits);
 }
 
 /**
@@ -257,11 +242,10 @@ function parseBRDA(currentCoverageFile, prefixSplit) {
   const blockNumber = parseInt(numberSplit[1], 10);
   const branchNumber = parseInt(numberSplit[2], 10);
 
-  const existingBRDA = findBRDA(
-    currentCoverageFile.BRDARecords,
+  const existingBRDA = currentCoverageFile.findBRDA(
+    lineNumber,
     blockNumber,
-    branchNumber,
-    lineNumber
+    branchNumber
   );
 
   // Special case, hits might be a '-'. This means that the code block
@@ -370,7 +354,7 @@ module.exports = function (config) {
       }
       const fileContentStr = fs.readFileSync(filePath, {
         encoding: 'utf8',
-        flag: 'r'
+        flag: 'r',
       });
       coverageFiles = processFile(
         path.dirname(filePath),
@@ -383,7 +367,7 @@ module.exports = function (config) {
     function flush() {
       fs.writeFileSync('lcov.info', Buffer.from(createRecords(coverageFiles)), {
         encoding: 'utf-8',
-        flag: 'w+'
+        flag: 'w+',
       });
       this.push('lcov.info');
       this.emit('end');
