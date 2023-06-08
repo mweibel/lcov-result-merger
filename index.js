@@ -9,57 +9,17 @@
 const through = require('through2');
 const fs = require('fs');
 const path = require('path');
-const CoverageFile = require('./lib/CoverageFile');
-
-/**
- * Find an existing coverage file
- *
- * @param {CoverageFile[]} source
- * @param {string}         filename
- *
- * @returns {CoverageFile|null}
- */
-function findCoverageFile(source, filename) {
-  for (let i = 0; i < source.length; i++) {
-    const file = source[i];
-    if (file.filename === filename) {
-      return file;
-    }
-  }
-  return null;
-}
-
-/**
- * Parses an SF section
- *
- * @param {CoverageFile[]} lcov
- * @param {string[]}       prefixSplit
- *
- * @returns {CoverageFile|null}
- */
-function parseSF(lcov, prefixSplit) {
-  // If the filepath contains a ':', we want to preserve it.
-  prefixSplit.shift();
-  const currentFileName = prefixSplit.join(':');
-  let currentCoverageFile = findCoverageFile(lcov, currentFileName);
-  if (currentCoverageFile) {
-    return currentCoverageFile;
-  }
-  currentCoverageFile = new CoverageFile(currentFileName);
-  lcov.push(currentCoverageFile);
-
-  return currentCoverageFile;
-}
+const FullReport = require('./lib/FullReport');
 
 /**
  * Process a lcov input file into the representing Objects
  *
- * @param {string}         sourceDir - The absolute path to the lcov file directory.
- * @param {string}         data
- * @param {CoverageFile[]} lcov
- * @param {{}}             config
+ * @param {string}     sourceDir - The absolute path to the lcov file directory.
+ * @param {string}     data
+ * @param {FullReport} lcov
+ * @param {{}}         config
  *
- * @returns {CoverageFile[]}
+ * @returns {FullReport}
  */
 function processFile(sourceDir, data, lcov, config) {
   const lines = data.split(/\r?\n/);
@@ -97,7 +57,11 @@ function processFile(sourceDir, data, lcov, config) {
           );
         }
 
-        currentCoverageFile = parseSF(lcov, sourceFileNameParts);
+        // If the filepath contains a ':', we want to preserve it.
+        currentCoverageFile = lcov.addCoverageFile(
+          sourceFileNameParts.slice(1).join(':')
+        );
+
         break;
       }
       case 'DA':
@@ -112,52 +76,41 @@ function processFile(sourceDir, data, lcov, config) {
       // do nothing with not implemented prefixes
     }
   }
+
   return lcov;
 }
 
-/**
- * Creates LCOV records for given list of files.
- *
- * @param {CoverageFile[]} coverageFiles
- *
- * @returns {string}
- */
-function createRecords(coverageFiles) {
-  return coverageFiles
-    .sort(function (fileA, fileB) {
-      return fileA.filename.localeCompare(fileB.filename);
-    })
-    .map(function (coverageFile) {
-      return coverageFile.toString();
-    })
-    .join('');
-}
-
 module.exports = function (config) {
-  let coverageFiles = [];
+  const fullReport = new FullReport();
+
   return through.obj(
     function (filePath, encoding, callback) {
       if (!fs.existsSync(filePath)) {
         callback();
         return;
       }
+
       const fileContentStr = fs.readFileSync(filePath, {
         encoding: 'utf8',
         flag: 'r',
       });
-      coverageFiles = processFile(
+
+      processFile(
         path.dirname(filePath),
         fileContentStr,
-        coverageFiles,
+        fullReport,
         config || {}
       );
+
       callback();
     },
+
     function flush() {
-      fs.writeFileSync('lcov.info', Buffer.from(createRecords(coverageFiles)), {
+      fs.writeFileSync('lcov.info', Buffer.from(fullReport.toString()), {
         encoding: 'utf-8',
         flag: 'w+',
       });
+
       this.push('lcov.info');
       this.emit('end');
     }
