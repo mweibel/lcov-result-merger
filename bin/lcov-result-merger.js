@@ -7,19 +7,7 @@ const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
 
 /**
- * @typedef {Object} Configuration
- *
- * @property {string}   pattern
- * @property {string}   [outFile]
- * @property {boolean}  [prependSourceFiles=false]
- * @property {boolean}  [prepend-source-files=false]
- * @property {string}   [prependPathFix]
- * @property {string}   [prepend-path-fix]
- * @property {string[]} [ignore]
- */
-
-/**
- * @type {Configuration}
+ * @type {import("../lib/Configuration").ConfigurationPojo}
  */
 const args = yargs(hideBin(process.argv)).command(
   '* <pattern> [outFile] [options]',

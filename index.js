@@ -9,15 +9,16 @@
 const through = require('through2');
 const fs = require('fs');
 const path = require('path');
+const Configuration = require('./lib/Configuration');
 const FullReport = require('./lib/FullReport');
 
 /**
  * Process a lcov input file into the representing Objects
  *
- * @param {string}     sourceDir - The absolute path to the lcov file directory.
- * @param {string}     data
+ * @param {string} sourceDir - The absolute path to the lcov file directory.
+ * @param {string} data
  * @param {FullReport} lcov
- * @param {{}}         config
+ * @param {Configuration} config
  *
  * @returns {FullReport}
  */
@@ -39,19 +40,20 @@ function processFile(sourceDir, data, lcov, config) {
       case 'SF': {
         let sourceFileNameParts = prefixSplit;
 
-        if (config['prepend-source-files']) {
-          const pathFix =
-            typeof config['prepend-path-fix'] === 'string'
-              ? config['prepend-path-fix']
-              : '..';
-
+        if (config.prependSourceFiles) {
           const fullFilePathName = path.normalize(
-            path.join(sourceDir, pathFix, prefixSplit.slice(1).join(':'))
+            path.join(
+              sourceDir,
+              config.prependPathFix,
+              prefixSplit.slice(1).join(':')
+            )
           );
+
           const rootRelPathName = path.relative(
             process.cwd(),
             fullFilePathName
           );
+
           sourceFileNameParts = [prefix].concat(
             ('./' + rootRelPathName).split(':')
           );
@@ -80,8 +82,13 @@ function processFile(sourceDir, data, lcov, config) {
   return lcov;
 }
 
-module.exports = function (config) {
-  const fullReport = new FullReport();
+/**
+ * @param {import("./lib/Configuration").ConfigurationPojo} options
+ * @return {*}
+ */
+module.exports = function mergeCoverageReportFiles(options) {
+  const config = new Configuration(options);
+  const report = new FullReport();
 
   return through.obj(
     function (filePath, encoding, callback) {
@@ -90,23 +97,17 @@ module.exports = function (config) {
         return;
       }
 
-      const fileContentStr = fs.readFileSync(filePath, {
+      const fileContent = fs.readFileSync(filePath, {
         encoding: 'utf8',
         flag: 'r',
       });
 
-      processFile(
-        path.dirname(filePath),
-        fileContentStr,
-        fullReport,
-        config || {}
-      );
-
+      processFile(path.dirname(filePath), fileContent, report, config);
       callback();
     },
 
     function flush() {
-      fs.writeFileSync('lcov.info', Buffer.from(fullReport.toString()), {
+      fs.writeFileSync('lcov.info', Buffer.from(report.toString()), {
         encoding: 'utf-8',
         flag: 'w+',
       });
