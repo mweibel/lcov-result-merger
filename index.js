@@ -23,30 +23,29 @@ const FullReport = require('./lib/FullReport');
  * @returns {FullReport}
  */
 function processFile(sourceDir, data, lcov, config) {
-  const lines = data.split(/\r?\n/);
+  /** @type {import("./lib/CoverageFile")|null} */
   let currentCoverageFile = null;
 
-  for (let i = 0, l = lines.length; i < l; i++) {
+  const lines = data.split(/\r?\n/);
+
+  for (let i = 0; i < lines.length; i += 1) {
     const line = lines[i];
+
     if (line === 'end_of_record' || line === '') {
       currentCoverageFile = null;
       continue;
     }
 
-    const prefixSplit = line.split(':');
-    const prefix = prefixSplit[0];
+    const [prefix, ...suffixParts] = line.split(':');
+    const suffix = suffixParts.join(':');
 
     switch (prefix) {
       case 'SF': {
-        let sourceFileNameParts = prefixSplit;
+        let sourceFilePath = suffix;
 
         if (config.prependSourceFiles) {
           const fullFilePathName = path.normalize(
-            path.join(
-              sourceDir,
-              config.prependPathFix,
-              prefixSplit.slice(1).join(':')
-            )
+            path.join(sourceDir, config.prependPathFix, sourceFilePath)
           );
 
           const rootRelPathName = path.relative(
@@ -54,24 +53,19 @@ function processFile(sourceDir, data, lcov, config) {
             fullFilePathName
           );
 
-          sourceFileNameParts = [prefix].concat(
-            ('./' + rootRelPathName).split(':')
-          );
+          sourceFilePath = './' + rootRelPathName;
         }
 
-        // If the filepath contains a ':', we want to preserve it.
-        currentCoverageFile = lcov.addCoverageFile(
-          sourceFileNameParts.slice(1).join(':')
-        );
-
+        currentCoverageFile = lcov.addCoverageFile(sourceFilePath);
         break;
       }
+
       case 'DA':
-        currentCoverageFile.parseDA(prefixSplit[1]);
+        currentCoverageFile.parseDA(suffix);
         break;
 
       case 'BRDA':
-        currentCoverageFile.parseBRDA(prefixSplit[1]);
+        currentCoverageFile.parseBRDA(suffix);
         break;
 
       default:
