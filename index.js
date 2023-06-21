@@ -9,6 +9,7 @@
 const through = require('through2');
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 const Configuration = require('./lib/Configuration');
 const FullReport = require('./lib/FullReport');
 
@@ -101,12 +102,18 @@ module.exports = function mergeCoverageReportFiles(options) {
     },
 
     function flush() {
-      fs.writeFileSync('lcov.info', Buffer.from(report.toString()), {
+      const tmpPath = config.legacyTempFile
+        ? ''
+        : fs.mkdtempSync(path.join(os.tmpdir(), 'lcov-result-merger-'));
+
+      const tmpFile = path.join(tmpPath, 'lcov.info');
+
+      fs.writeFileSync(tmpFile, Buffer.from(report.toString()), {
         encoding: 'utf-8',
         flag: 'w+',
       });
 
-      this.push('lcov.info');
+      this.push(tmpFile);
       this.emit('end');
     }
   );

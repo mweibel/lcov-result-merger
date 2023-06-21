@@ -10,12 +10,18 @@ chai.should();
 describe('lcovResultMerger', function () {
   it('should combine the given records into one', async function () {
     const expected = fs.readFileSync('./test/expected/basic/lcov.info', 'utf8');
+    let tmpFilePath = '';
+
     await new Promise((res) => {
       fg.stream('./test/fixtures/basic/*/lcov.info')
         .pipe(lcovResultMerger())
+        .on('data', (tmpFile) => {
+          tmpFilePath = tmpFile;
+        })
         .on('end', res);
     });
-    const actual = fs.readFileSync('lcov.info', 'utf8');
+
+    const actual = fs.readFileSync(tmpFilePath, 'utf8');
     return actual.should.equal(expected);
   });
 
@@ -38,12 +44,17 @@ describe('lcovResultMerger', function () {
       './test/expected/windows/lcov.info',
       'utf8'
     );
+    let tmpFilePath = '';
+
     await new Promise((res) => {
       fg.stream('./test/fixtures/windows/lcov.info')
         .pipe(lcovResultMerger())
+        .on('data', (tmpFile) => {
+          tmpFilePath = tmpFile;
+        })
         .on('end', res);
     });
-    const actual = fs.readFileSync('lcov.info', 'utf8');
+    const actual = fs.readFileSync(tmpFilePath, 'utf8');
     return actual.should.equal(expected);
   });
 
@@ -52,6 +63,9 @@ describe('lcovResultMerger', function () {
       './test/expected/prepended/lcov.info',
       'utf8'
     );
+
+    let tmpFilePath = '';
+
     await new Promise((res) => {
       fg.stream('./test/fixtures/basic/*/lcov.info')
         .pipe(
@@ -60,9 +74,12 @@ describe('lcovResultMerger', function () {
             'prepend-path-fix': '',
           })
         )
+        .on('data', (tmpFile) => {
+          tmpFilePath = tmpFile;
+        })
         .on('end', res);
     });
-    const actual = fs.readFileSync('lcov.info', 'utf8');
+    const actual = fs.readFileSync(tmpFilePath, 'utf8');
     return actual.should.equal(expected);
   });
 
@@ -71,12 +88,18 @@ describe('lcovResultMerger', function () {
       './test/expected/prepended-path-fix/lcov.info',
       'utf8'
     );
+
+    let tmpFilePath = '';
+
     await new Promise((res) => {
       fg.stream('./test/fixtures/coverage-subfolder/*/coverage/lcov.info')
         .pipe(lcovResultMerger({ 'prepend-source-files': true }))
+        .on('data', (tmpFile) => {
+          tmpFilePath = tmpFile;
+        })
         .on('end', res);
     });
-    const actual = fs.readFileSync('lcov.info', 'utf8');
+    const actual = fs.readFileSync(tmpFilePath, 'utf8');
     return actual.should.equal(expected);
   });
 });
