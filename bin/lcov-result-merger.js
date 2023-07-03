@@ -1,8 +1,7 @@
 #!/usr/bin/env node
-const fg = require('fast-glob');
-const through = require('through2');
-const fs = require('fs');
-const lcovResultMerger = require('../index');
+const fastGlob = require('fast-glob');
+const { rename, readFile } = require('node:fs/promises');
+const { mergeCoverageReportFiles } = require('../index');
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
 
@@ -55,21 +54,17 @@ const args = yargs(hideBin(process.argv)).command(
   }
 ).argv;
 
-fg.stream(args.pattern, { absolute: true, ignore: args.ignore })
-  .pipe(lcovResultMerger(args))
-  .pipe(
-    through.obj((filePath) => {
-      const fileContentStr = fs.readFileSync(filePath, {
-        encoding: 'utf-8',
-        flag: 'r+',
-      });
+(async function () {
+  const files = await fastGlob(args.pattern, {
+    absolute: true,
+    ignore: args.ignore,
+  });
 
-      fs.unlinkSync(filePath);
+  const tempFilePath = await mergeCoverageReportFiles(files, args);
 
-      if (args.outFile) {
-        fs.writeFileSync(args.outFile, fileContentStr);
-      } else {
-        process.stdout.write(fileContentStr);
-      }
-    })
-  );
+  if (args.outFile) {
+    await rename(tempFilePath, args.outFile);
+  } else {
+    process.stdout.write(await readFile(tempFilePath, 'utf-8'));
+  }
+})();

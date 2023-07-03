@@ -2,14 +2,13 @@
  * LCOV result merger
  *
  * @author Michael Weibel <michael.weibel@gmail.com>
- * @copyright 2013-2016 Michael Weibel
+ * @copyright 2013-2023 Michael Weibel
  * @license MIT
  */
 
-const through = require('through2');
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
+const { readFile, writeFile } = require('node:fs/promises');
+const path = require('node:path');
+const { Transform } = require('node:stream');
 const Configuration = require('./lib/Configuration');
 const FullReport = require('./lib/FullReport');
 
@@ -17,7 +16,7 @@ const FullReport = require('./lib/FullReport');
  * Process a lcov input file into the representing Objects
  *
  * @param {string} sourceDir - The absolute path to the lcov file directory.
- * @param {string} data
+ * @param {Buffer} data
  * @param {FullReport} lcov
  * @param {Configuration} config
  *
@@ -27,7 +26,7 @@ function processFile(sourceDir, data, lcov, config) {
   /** @type {import("./lib/CoverageFile")|null} */
   let currentCoverageFile = null;
 
-  const lines = data.split(/\r?\n/);
+  const lines = data.toString('utf-8').split(/\r?\n/);
 
   for (let i = 0; i < lines.length; i += 1) {
     const line = lines[i];
@@ -78,43 +77,72 @@ function processFile(sourceDir, data, lcov, config) {
 }
 
 /**
+ *
+ *
+ * @param {string[]} filePaths
  * @param {import("./lib/Configuration").ConfigurationPojo} options
- * @return {*}
+ *
+ * @return {Promise<string>}
  */
-module.exports = function mergeCoverageReportFiles(options) {
+async function mergeCoverageReportFiles(filePaths, options) {
   const config = new Configuration(options);
   const report = new FullReport();
 
-  return through.obj(
-    function (filePath, encoding, callback) {
-      if (!fs.existsSync(filePath)) {
-        callback();
-        return;
-      }
+  for (const filePath of filePaths) {
+    const fileContent = await readFile(filePath, 'utf-8');
+    processFile(path.dirname(filePath), fileContent, report, config);
+  }
 
-      const fileContent = fs.readFileSync(filePath, {
-        encoding: 'utf8',
-        flag: 'r',
-      });
+  const tmpFile = await config.getTempFilePath();
 
-      processFile(path.dirname(filePath), fileContent, report, config);
-      callback();
+  await writeFile(tmpFile, Buffer.from(report.toString()), {
+    encoding: 'utf-8',
+    flag: 'w+',
+  });
+
+  return tmpFile;
+}
+
+/**
+ *
+ * @param {string[] | import("./lib/Configuration").ConfigurationPojo} [filePathsOrOptions]
+ * @param {import("./lib/Configuration").ConfigurationPojo} [options]
+ *
+ * @return {module:stream.internal.Transform}
+ */
+function mergeCoverageReportFilesStream(filePathsOrOptions, options) {
+  return new Transform({
+    writableObjectMode: true,
+
+    construct(callback) {
+      this.filePaths = Array.isArray(filePathsOrOptions)
+        ? filePathsOrOptions
+        : [];
+
+      callback(null);
     },
 
-    function flush() {
-      const tmpPath = config.legacyTempFile
-        ? ''
-        : fs.mkdtempSync(path.join(os.tmpdir(), 'lcov-result-merger-'));
+    transform(chunk, encoding, callback) {
+      this.filePaths.push(chunk.toString());
+      callback(null);
+    },
 
-      const tmpFile = path.join(tmpPath, 'lcov.info');
+    flush(callback) {
+      const opts = options
+        ? options
+        : Array.isArray(filePathsOrOptions)
+        ? {}
+        : filePathsOrOptions || {};
 
-      fs.writeFileSync(tmpFile, Buffer.from(report.toString()), {
-        encoding: 'utf-8',
-        flag: 'w+',
-      });
+      mergeCoverageReportFiles(this.filePaths, opts).then(
+        (tempFile) => callback(null, tempFile),
+        (error) => callback(error)
+      );
+    },
+  });
+}
 
-      this.push(tmpFile);
-      this.emit('end');
-    }
-  );
+module.exports = {
+  mergeCoverageReportFiles,
+  mergeCoverageReportFilesStream,
 };
