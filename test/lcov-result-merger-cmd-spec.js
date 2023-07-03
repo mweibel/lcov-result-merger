@@ -1,117 +1,97 @@
 /* eslint-env mocha */
 
-const fs = require('fs');
-const os = require('os');
-const path = require('path');
 const chai = require('chai');
-const execa = require('execa');
-const rimraf = require('rimraf');
+
+const {
+  runCli,
+  getExpected,
+  getActual,
+  getTempLcovFilePath,
+  cleanFileDirectory,
+} = require('./helpers');
 
 chai.should();
-
-/**
- * Run the lcov-result-merger command in a child process.
- *
- * @param {string[]} [commands]
- * @returns {Promise<string>}
- */
-async function runCli(commands, sourceFiles) {
-  const args = [
-    './bin/lcov-result-merger.js',
-    sourceFiles || '"./test/fixtures/basic/*/lcov.info"',
-  ].concat(commands || []);
-
-  const { stdout } = await execa('node', args);
-  return stdout.trim();
-}
-
-/**
- * Read the contents from the relevant "expected" fixture file.
- *
- * @param {'basic'|'prepended'|'prepended-path-fix'} type
- * @returns {string}
- */
-function getExpected(type) {
-  return fs.readFileSync(`./test/expected/${type}/lcov.info`, 'utf-8').trim();
-}
-
-/**
- * Create a temporary directory to output lcov content into, and
- * return a full string path to the lcov file that will be written.
- *
- * @returns {string}
- */
-function makeTmpFilePath() {
-  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lcov-result-merger-'));
-  return path.join(tmpDir, 'lcov.info');
-}
-
-/**
- * Clean up the temporary directory.
- *
- * @param {string} tmpFilePath
- */
-function cleanTmpDirectory(tmpFilePath) {
-  rimraf.sync(path.dirname(tmpFilePath));
-}
 
 describe('lcovResultMerger CLI', function () {
   it('should combine the given records into one', async function () {
     const actual = await runCli();
-    actual.should.equal(getExpected('basic'));
+    const expect = await getExpected('basic');
+
+    actual.should.equal(expect);
   });
 
   it('should ignore paths with the --ignore option', async function () {
-    const actual = await runCli(
-      ['--ignore="**/extra.info"'],
-      '"./test/fixtures/ignore/*/*.info"'
-    );
-    actual.should.equal(getExpected('basic'));
+    const options = ['--ignore="**/extra.info"'];
+    const pattern = '"./test/fixtures/ignore/*/*.info"';
+
+    const actual = await runCli(options, pattern);
+    const expect = await getExpected('basic');
+
+    actual.should.equal(expect);
   });
 
   it('should optionally prepend source file lines', async function () {
-    const actual = await runCli([
-      '--prepend-source-files',
-      '--prepend-path-fix=""',
-    ]);
-    actual.should.equal(getExpected('prepended'));
+    const options = ['--prepend-source-files', '--prepend-path-fix=""'];
+
+    const actual = await runCli(options);
+    const expect = await getExpected('prepended');
+
+    actual.should.equal(expect);
   });
 
   it('should optionally prepend source file lines with corrected pathing', async function () {
-    const actual = await runCli(
-      ['--prepend-source-files'],
-      '"./test/fixtures/coverage-subfolder/*/coverage/lcov.info"'
-    );
-    actual.should.equal(getExpected('prepended-path-fix'));
+    const options = ['--prepend-source-files'];
+    const pattern = '"./test/fixtures/coverage-subfolder/*/coverage/lcov.info"';
+
+    const actual = await runCli(options, pattern);
+    const expect = await getExpected('prepended-path-fix');
+
+    actual.should.equal(expect);
   });
 
   it('should combine to given records into one output file', async function () {
-    const tmpFile = makeTmpFilePath();
-    await runCli([tmpFile]);
-    const actual = fs.readFileSync(tmpFile, 'utf-8');
+    const outfile = await getTempLcovFilePath();
 
-    actual.trim().should.equal(getExpected('basic'));
-    cleanTmpDirectory(tmpFile);
+    await runCli([outfile]);
+
+    const actual = await getActual(outfile);
+    const expect = await getExpected('basic');
+
+    await cleanFileDirectory(outfile);
+
+    actual.should.equal(expect);
   });
 
   it('should optionally prepend source file lines into one output file', async function () {
-    const tmpFile = makeTmpFilePath();
-    await runCli([tmpFile, '--prepend-source-files', '--prepend-path-fix=""']);
-    const actual = fs.readFileSync(tmpFile, 'utf-8');
+    const outfile = await getTempLcovFilePath();
+    const options = [
+      outfile,
+      '--prepend-source-files',
+      '--prepend-path-fix=""',
+    ];
 
-    actual.trim().should.equal(getExpected('prepended'));
-    cleanTmpDirectory(tmpFile);
+    await runCli(options);
+
+    const actual = await getActual(outfile);
+    const expect = await getExpected('prepended');
+
+    await cleanFileDirectory(outfile);
+
+    actual.should.equal(expect);
   });
 
   it('should optionally prepend source file lines into one output file with corrected pathing', async function () {
-    const tmpFile = makeTmpFilePath();
-    await runCli(
-      [tmpFile, '--prepend-source-files'],
-      '"./test/fixtures/coverage-subfolder/*/coverage/lcov.info"'
-    );
-    const actual = fs.readFileSync(tmpFile, 'utf-8');
+    const outfile = await getTempLcovFilePath();
+    const options = [outfile, '--prepend-source-files'];
+    const pattern = '"./test/fixtures/coverage-subfolder/*/coverage/lcov.info"';
 
-    actual.trim().should.equal(getExpected('prepended-path-fix'));
-    cleanTmpDirectory(tmpFile);
+    await runCli(options, pattern);
+
+    const actual = await getActual(outfile);
+    const expect = await getExpected('prepended-path-fix');
+
+    await cleanFileDirectory(outfile);
+
+    actual.should.equal(expect);
   });
 });
