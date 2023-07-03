@@ -25,7 +25,7 @@ async function runCli(commands, pattern) {
 /**
  * Read the contents from the relevant "expected" fixture file.
  *
- * @param {'basic'|'prepended'|'prepended-path-fix'} type
+ * @param {'basic'|'prepended'|'prepended-path-fix'|'windows'} type
  *
  * @returns {Promise<string>}
  */
