@@ -9,9 +9,10 @@
   ],
   "scripts": {
     "lint": "eslint . --cache",
-    "test": "mocha -R spec test --bail",
-    "test-coverage": "nyc --reporter=html --reporter=lcov mocha -- -R spec test --bail",
-    "semantic-release": "semantic-release"
+    "test": "npm run lint && npm run test:js",
+    "test:js": "mocha -R spec test --bail",
+    "test:coverage": "nyc --reporter=html --reporter=lcov mocha -- -R spec test --bail",
+    "release": "semantic-release"
   },
   "bin": {
     "lcov-result-merger": "./bin/lcov-result-merger.js"
@@ -44,7 +45,6 @@
   "devDependencies": {
     "@types/yargs": "^17.0.10",
     "chai": "^4.1.2",
-    "cz-conventional-changelog": "^3.0.1",
     "eslint": "^8.30.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-node": "^11.1.0",
@@ -59,11 +59,6 @@
   },
   "engines": {
     "node": ">=14"
-  },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
   },
   "version": "4.1.0",
   "volta": {
