@@ -6,3 +6,4 @@ package-lock.json
 /.idea
 .eslintcache
 /lcov.info
+/.nyc_output
