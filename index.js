@@ -105,41 +105,43 @@ async function mergeCoverageReportFiles(filePaths, options) {
 
 /**
  *
+ */
+class WrappingTransform extends Transform {
+  constructor(filePathsOrMergeOptions, mergeOptions) {
+    super();
+
+    this.filePaths = Array.isArray(filePathsOrMergeOptions)
+      ? filePathsOrMergeOptions
+      : [];
+
+    this.mergeOptions = mergeOptions
+      ? mergeOptions
+      : Array.isArray(filePathsOrMergeOptions)
+      ? {}
+      : filePathsOrMergeOptions || {};
+  }
+
+  _transform(chunk, encoding, callback) {
+    this.filePaths.push(chunk.toString());
+    callback(null);
+  }
+
+  _flush(callback) {
+    mergeCoverageReportFiles(this.filePaths, this.mergeOptions).then(
+      (tempFile) => callback(null, tempFile),
+      (error) => callback(error)
+    );
+  }
+}
+
+/**
  * @param {string[] | import("./lib/Configuration").ConfigurationPojo} [filePathsOrOptions]
  * @param {import("./lib/Configuration").ConfigurationPojo} [options]
  *
  * @return {module:stream.internal.Transform}
  */
 function mergeCoverageReportFilesStream(filePathsOrOptions, options) {
-  return new Transform({
-    writableObjectMode: true,
-
-    construct(callback) {
-      this.filePaths = Array.isArray(filePathsOrOptions)
-        ? filePathsOrOptions
-        : [];
-
-      callback(null);
-    },
-
-    transform(chunk, encoding, callback) {
-      this.filePaths.push(chunk.toString());
-      callback(null);
-    },
-
-    flush(callback) {
-      const opts = options
-        ? options
-        : Array.isArray(filePathsOrOptions)
-        ? {}
-        : filePathsOrOptions || {};
-
-      mergeCoverageReportFiles(this.filePaths, opts).then(
-        (tempFile) => callback(null, tempFile),
-        (error) => callback(error)
-      );
-    },
-  });
+  return new WrappingTransform(filePathsOrOptions, options);
 }
 
 module.exports = {
