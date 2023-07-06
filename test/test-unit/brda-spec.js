@@ -3,7 +3,7 @@
 const chai = require('chai');
 chai.should();
 
-const BRDA = require('../../lib/BRDA');
+const BRDA = require('../../lib/entries/brda');
 
 describe('Unit | BRDA', function () {
   it('should be constructable with the new operator', async function () {

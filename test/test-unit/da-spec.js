@@ -3,7 +3,7 @@
 const chai = require('chai');
 chai.should();
 
-const DA = require('../../lib/DA');
+const DA = require('../../lib/entries/da');
 
 describe('Unit | DA', function () {
   it('should be constructable with the new operator', async function () {

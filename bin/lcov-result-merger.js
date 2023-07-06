@@ -6,7 +6,7 @@ const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
 
 /**
- * @type {import("../lib/Configuration").ConfigurationPojo}
+ * @type {import("../lib/configuration").ConfigurationPojo}
  */
 const args = yargs(hideBin(process.argv)).command(
   '* <pattern> [outFile] [options]',

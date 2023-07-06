@@ -9,8 +9,8 @@
 const { readFile, writeFile } = require('node:fs/promises');
 const path = require('node:path');
 const { Transform } = require('node:stream');
-const Configuration = require('./lib/Configuration');
-const FullReport = require('./lib/FullReport');
+const Configuration = require('./lib/configuration');
+const FullReport = require('./lib/full-report');
 
 /**
  * Process a lcov input file into the representing Objects
@@ -23,7 +23,7 @@ const FullReport = require('./lib/FullReport');
  * @returns {FullReport}
  */
 function processFile(sourceDir, data, lcov, config) {
-  /** @type {import("./lib/CoverageFile")|null} */
+  /** @type {import("./lib/entries/coverage-file")|null} */
   let currentCoverageFile = null;
 
   const lines = data.toString('utf-8').split(/\r?\n/);
@@ -80,7 +80,7 @@ function processFile(sourceDir, data, lcov, config) {
  *
  *
  * @param {string[]} filePaths
- * @param {import("./lib/Configuration").ConfigurationPojo} options
+ * @param {import("./lib/configuration").ConfigurationPojo} options
  *
  * @return {Promise<string>}
  */
@@ -135,8 +135,8 @@ class WrappingTransform extends Transform {
 }
 
 /**
- * @param {string[] | import("./lib/Configuration").ConfigurationPojo} [filePathsOrOptions]
- * @param {import("./lib/Configuration").ConfigurationPojo} [options]
+ * @param {string[] | import("./lib/configuration").ConfigurationPojo} [filePathsOrOptions]
+ * @param {import("./lib/configuration").ConfigurationPojo} [options]
  *
  * @return {module:stream.internal.Transform}
  */

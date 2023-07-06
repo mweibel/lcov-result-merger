@@ -3,7 +3,7 @@
 const chai = require('chai');
 chai.should();
 
-const CoverageFile = require('../../lib/CoverageFile');
+const CoverageFile = require('../../lib/entries/coverage-file');
 
 describe('Unit | CoverageFile', function () {
   it('should be constructable with the new operator', async function () {
