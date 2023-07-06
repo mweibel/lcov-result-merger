@@ -8,7 +8,7 @@ const {
   getActual,
   getTempLcovFilePath,
   cleanFileDirectory,
-} = require('./helpers');
+} = require('../helpers');
 
 chai.should();
 

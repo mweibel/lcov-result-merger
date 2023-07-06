@@ -2,8 +2,8 @@
 
 const fastGlob = require('fast-glob');
 const chai = require('chai');
-const { getActual, getExpected } = require('./helpers');
-const { mergeCoverageReportFilesStream } = require('../index.js');
+const { getActual, getExpected } = require('../helpers');
+const { mergeCoverageReportFilesStream } = require('../../index.js');
 
 chai.should();
 

@@ -10,8 +10,8 @@
   "scripts": {
     "lint": "eslint . --cache",
     "test": "npm run lint && npm run test:js",
-    "test:js": "mocha -R spec test --bail",
-    "test:coverage": "nyc --reporter=html --reporter=lcov mocha -- -R spec test --bail",
+    "test:js": "mocha --bail --recursive",
+    "test:coverage": "nyc --reporter=html --reporter=lcov mocha -- --recursive",
     "release": "semantic-release"
   },
   "bin": {
