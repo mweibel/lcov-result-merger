@@ -7,3 +7,4 @@ package-lock.json
 .eslintcache
 /lcov.info
 /.nyc_output
+/.env

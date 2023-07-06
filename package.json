@@ -12,7 +12,7 @@
     "test": "npm run lint && npm run test:js",
     "test:js": "mocha --bail --recursive",
     "test:coverage": "nyc --reporter=html --reporter=lcov mocha -- --recursive",
-    "release": "semantic-release",
+    "release": "release-it",
     "cleanup": "rm -rf ./.nyc_output ./coverage ./.eslintcache"
   },
   "bin": {
@@ -44,6 +44,7 @@
     "yargs": "^16.2.0"
   },
   "devDependencies": {
+    "@release-it/conventional-changelog": "^6.0.0",
     "@types/yargs": "^17.0.10",
     "chai": "^4.1.2",
     "eslint": "^8.30.0",
@@ -55,8 +56,8 @@
     "mocha": "^10.0.0",
     "nyc": "^15.1.0",
     "prettier": "2.8.1",
-    "rimraf": "^5.0.1",
-    "semantic-release": "^19.0.3"
+    "release-it": "^15.11.0",
+    "rimraf": "^5.0.1"
   },
   "engines": {
     "node": ">=14"
@@ -65,5 +66,19 @@
   "volta": {
     "node": "14.17.3",
     "npm": "7.18.1"
+  },
+  "release-it": {
+    "plugins": {
+      "@release-it/conventional-changelog": {
+        "preset": "conventionalcommits",
+        "infile": "CHANGELOG.md"
+      }
+    },
+    "git": {
+      "commitMessage": "chore: release v${version}"
+    },
+    "github": {
+      "release": true
+    }
   }
 }
