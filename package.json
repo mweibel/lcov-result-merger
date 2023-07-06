@@ -12,7 +12,8 @@
     "test": "npm run lint && npm run test:js",
     "test:js": "mocha --bail --recursive",
     "test:coverage": "nyc --reporter=html --reporter=lcov mocha -- --recursive",
-    "release": "semantic-release"
+    "release": "semantic-release",
+    "cleanup": "rm -rf ./.nyc_output ./coverage ./.eslintcache"
   },
   "bin": {
     "lcov-result-merger": "./bin/lcov-result-merger.js"
