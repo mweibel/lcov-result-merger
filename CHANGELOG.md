@@ -1,5 +1,12 @@
 
 
+## [5.0.0](https://github.com/mweibel/lcov-result-merger/compare/v5.0.0-rc.0...v5.0.0) (2023-11-20)
+
+
+### Features
+
+* provide ts libdefs ([246c7c6](https://github.com/mweibel/lcov-result-merger/commit/246c7c699b3102437691c5fff2805b01b663835c))
+
 ## [5.0.0-rc.0](https://github.com/mweibel/lcov-result-merger/compare/v4.1.0...v5.0.0-rc.0) (2023-07-06)
 
 
