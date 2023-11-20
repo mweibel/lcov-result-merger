@@ -2,15 +2,18 @@
   "name": "lcov-result-merger",
   "description": "Merges multiple lcov results into one",
   "main": "index.js",
+  "types": "index.d.ts",
   "files": [
     "index.js",
+    "index.d.ts",
     "bin",
     "lib"
   ],
   "scripts": {
     "lint": "eslint . --cache",
-    "test": "npm run lint && npm run test:js",
+    "test": "npm run lint && npm run test:js && npm run test:dts",
     "test:js": "mocha --bail --recursive",
+    "test:dts": "tsd -f test/test-types/index.test-d.ts",
     "test:coverage": "nyc --reporter=html --reporter=lcov mocha -- --recursive",
     "release": "release-it",
     "cleanup": "rm -rf ./.nyc_output ./coverage ./.eslintcache"
@@ -45,6 +48,7 @@
   },
   "devDependencies": {
     "@release-it/conventional-changelog": "^6.0.0",
+    "@types/node": "^20.9.0",
     "@types/yargs": "^17.0.10",
     "chai": "^4.1.2",
     "eslint": "^8.30.0",
@@ -57,7 +61,8 @@
     "nyc": "^15.1.0",
     "prettier": "2.8.1",
     "release-it": "^15.11.0",
-    "rimraf": "^5.0.1"
+    "rimraf": "^5.0.1",
+    "tsd": "^0.29.0"
   },
   "engines": {
     "node": ">=14"
