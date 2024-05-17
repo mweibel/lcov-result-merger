@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 const fastGlob = require('fast-glob');
-const { rename, readFile } = require('node:fs/promises');
+const { copyFile, readFile } = require('node:fs/promises');
 const { mergeCoverageReportFiles } = require('../index');
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
@@ -63,7 +63,7 @@ const args = yargs(hideBin(process.argv)).command(
   const tempFilePath = await mergeCoverageReportFiles(files, args);
 
   if (args.outFile) {
-    await rename(tempFilePath, args.outFile);
+    await copyFile(tempFilePath, args.outFile);
   } else {
     process.stdout.write(await readFile(tempFilePath, 'utf-8'));
   }
