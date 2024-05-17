@@ -1,5 +1,17 @@
 
 
+## [6.0.0-rc.0](https://github.com/mweibel/lcov-result-merger/compare/v5.0.1...v6.0.0-rc.0) (2024-05-17)
+
+
+### ⚠ BREAKING CHANGES
+
+* remove temp file creation and usage
+
+### Features
+
+* introduce --log argument ([4be3ca6](https://github.com/mweibel/lcov-result-merger/commit/4be3ca6ca11b7d6b99271c543db7fefccfc3d0e4))
+* remove temp file creation and usage ([63e591a](https://github.com/mweibel/lcov-result-merger/commit/63e591af4b3bfbfc765793454b2802097a76885c))
+
 ## [5.0.1](https://github.com/mweibel/lcov-result-merger/compare/v5.0.0...v5.0.1) (2024-05-17)
 
 
