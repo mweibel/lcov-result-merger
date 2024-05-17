@@ -5,7 +5,6 @@ type ConfigurationPojo = {
   outFile?: string
   prependSourceFiles?: boolean
   prependPathFix?: string
-  legacyTempFile?: boolean
   ignore?: string[]
 }
 

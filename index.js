@@ -2,11 +2,11 @@
  * LCOV result merger
  *
  * @author Michael Weibel <michael.weibel@gmail.com>
- * @copyright 2013-2023 Michael Weibel
+ * @copyright 2013-2024 Michael Weibel
  * @license MIT
  */
 
-const { readFile, writeFile } = require('node:fs/promises');
+const { readFile } = require('node:fs/promises');
 const path = require('node:path');
 const { Transform } = require('node:stream');
 const Configuration = require('./lib/configuration');
@@ -77,7 +77,7 @@ function processFile(sourceDir, data, lcov, config) {
 }
 
 /**
- *
+ * Merge together the LCOV contents of the provided files.
  *
  * @param {string[]} filePaths
  * @param {import("./lib/configuration").ConfigurationPojo} options
@@ -93,18 +93,11 @@ async function mergeCoverageReportFiles(filePaths, options) {
     processFile(path.dirname(filePath), fileContent, report, config);
   }
 
-  const tmpFile = await config.getTempFilePath();
-
-  await writeFile(tmpFile, Buffer.from(report.toString()), {
-    encoding: 'utf-8',
-    flag: 'w+',
-  });
-
-  return tmpFile;
+  return report.toString().trim();
 }
 
 /**
- *
+ * A Stream wrapper for the merge utility.
  */
 class WrappingTransform extends Transform {
   constructor(filePathsOrMergeOptions, mergeOptions) {
@@ -128,13 +121,16 @@ class WrappingTransform extends Transform {
 
   _flush(callback) {
     mergeCoverageReportFiles(this.filePaths, this.mergeOptions).then(
-      (tempFile) => callback(null, tempFile),
+      (fullReport) => callback(null, fullReport.toString().trim()),
       (error) => callback(error)
     );
   }
 }
 
 /**
+ * A variation of the `mergeCoverageReportFiles()` utility that will return a
+ * stream instead of a promise.
+ *
  * @param {string[] | import("./lib/configuration").ConfigurationPojo} [filePathsOrOptions]
  * @param {import("./lib/configuration").ConfigurationPojo} [options]
  *

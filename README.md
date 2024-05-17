@@ -11,6 +11,8 @@ have the code coverage across all testsuites.
 
 This tool will handle this for you.
 
+> See the [Migration Notes](#migrating-notes) below if you are looking to upgrade between major versions.
+
 # Usage
 
 ```bash
@@ -45,3 +47,16 @@ works well for common tools such as [NYC](https://github.com/istanbuljs/nyc) tha
 ```bash
 ./node_modules/.bin/lcov-result-merger 'FILE_PATTERN' ['OUTPUT_FILE'] --prepend-source-files --prepend-path-fix "../src"
 ```
+
+## Migrating Notes
+Additional information about breaking changes.
+
+### Version 6
+- The `--legacy-temp-file` flag has been removed. This means that if your project is expecting an
+  errant `lcov.info` file to be created in the PWD, then it will need to be updated to instead use
+  the output file specified when running the command.
+
+- The internal usage of temp files has also been eliminated. This only effects project that are
+  directly importing the `mergeCoverageReportFiles` or `mergeCoverageReportFilesStream` functions
+  into their own code. Both of these methods now return the merged LCOV content directly, in the
+  form of a string, instead of a path to the temporary file where that content could be read.

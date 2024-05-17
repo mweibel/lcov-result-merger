@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 const fastGlob = require('fast-glob');
-const { copyFile, readFile } = require('node:fs/promises');
+const { writeFile } = require('node:fs/promises');
 const { mergeCoverageReportFiles } = require('../index');
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
@@ -37,14 +37,6 @@ const args = yargs(hideBin(process.argv)).command(
             'If using --prepend-source-files, this is needed to describe the relative path from the lcov ' +
             'directory to the project root.',
         },
-        'legacy-temp-file': {
-          type: 'boolean',
-          default: false,
-          description:
-            'Prior to version 5, a lcov.info file containing the merged output was created in the ' +
-            "current working directory. The operating system's temporary directory is now used by default, " +
-            'but if you relied on prior behavior then this flag will recreate it.',
-        },
         ignore: {
           type: 'array',
           default: [],
@@ -60,11 +52,11 @@ const args = yargs(hideBin(process.argv)).command(
     ignore: args.ignore,
   });
 
-  const tempFilePath = await mergeCoverageReportFiles(files, args);
+  const mergeResults = await mergeCoverageReportFiles(files, args);
 
   if (args.outFile) {
-    await copyFile(tempFilePath, args.outFile);
+    await writeFile(args.outFile, mergeResults, 'utf-8');
   } else {
-    process.stdout.write(await readFile(tempFilePath, 'utf-8'));
+    process.stdout.write(mergeResults + '\n');
   }
 })();
