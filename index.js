@@ -27,6 +27,7 @@ function processFile(sourceDir, data, lcov, config) {
   let currentCoverageFile = null;
 
   const lines = data.toString('utf-8').split(/\r?\n/);
+  config.logger?.(`Read ${lines.length} lines of content`);
 
   for (let i = 0; i < lines.length; i += 1) {
     const line = lines[i];
@@ -53,7 +54,15 @@ function processFile(sourceDir, data, lcov, config) {
             fullFilePathName
           );
 
+          config.logger?.(
+            `Re-writing source file path, Before: "${sourceFilePath}"`
+          );
+
           sourceFilePath = './' + rootRelPathName;
+
+          config.logger?.(
+            `Re-writing source file path, After:  "${sourceFilePath}"`
+          );
         }
 
         currentCoverageFile = lcov.addCoverageFile(sourceFilePath);
@@ -69,7 +78,10 @@ function processFile(sourceDir, data, lcov, config) {
         break;
 
       default:
-      // do nothing with not implemented prefixes
+        // do nothing with not implemented prefixes
+        config.logger?.(
+          `Ignoring unrecognized/unsupported entry (line #${i}): "${prefix}:${suffix}"`
+        );
     }
   }
 
@@ -90,6 +102,7 @@ async function mergeCoverageReportFiles(filePaths, options) {
 
   for (const filePath of filePaths) {
     const fileContent = await readFile(filePath, 'utf-8');
+    config.logger?.(`Processing "${filePath}"`);
     processFile(path.dirname(filePath), fileContent, report, config);
   }
 

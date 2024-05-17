@@ -42,20 +42,36 @@ const args = yargs(hideBin(process.argv)).command(
           default: [],
           description: 'Pass globs to ignore file paths',
         },
+        log: {
+          type: 'boolean',
+          default: false,
+          description:
+            'Show some additional information to the console about what the process is getting up' +
+            'to (fed to stderr).',
+        },
       });
   }
 ).argv;
 
 (async function () {
+  if (args.log) {
+    args.logger = function logger(...messages) {
+      process.stdout.write(`[lcov-result-merger] ${messages.join('\n')}\n`);
+    };
+  }
+
   const files = await fastGlob(args.pattern, {
     absolute: true,
     ignore: args.ignore,
   });
 
+  args.logger?.('Matched Files', JSON.stringify(files, null, 2));
+
   const mergeResults = await mergeCoverageReportFiles(files, args);
 
   if (args.outFile) {
     await writeFile(args.outFile, mergeResults, 'utf-8');
+    args.logger?.(`Results written to "${args.outFile}"`);
   } else {
     process.stdout.write(mergeResults + '\n');
   }
