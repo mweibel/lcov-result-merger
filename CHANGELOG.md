@@ -1,5 +1,12 @@
 
 
+## [5.0.1](https://github.com/mweibel/lcov-result-merger/compare/v5.0.0...v5.0.1) (2024-05-17)
+
+
+### Bug Fixes
+
+* copy the merge result file out of the temp directory, instead of trying to move it ([dcafe09](https://github.com/mweibel/lcov-result-merger/commit/dcafe09dd0ba805dd248c25c58b2eb0db8158ac9)), closes [/github.com/mweibel/lcov-result-merger/issues/58#issuecomment-1836915866](https://github.com/mweibel//github.com/mweibel/lcov-result-merger/issues/58/issues/issuecomment-1836915866)
+
 ## [5.0.0](https://github.com/mweibel/lcov-result-merger/compare/v5.0.0-rc.0...v5.0.0) (2023-11-20)
 
 
