@@ -52,6 +52,20 @@ describe('mergeCoverageReportFilesStream', function () {
     return actual.should.equal(expect);
   });
 
+  it('should round-trip FN/FNDA records whose names contain colons', async function () {
+    const actual = await testStream('./test/fixtures/fn-colon/lcov.info');
+    const expect = await getExpected('fn-colon');
+
+    return actual.should.equal(expect);
+  });
+
+  it('should union FN records and sum FNDA hits across files for the same source', async function () {
+    const actual = await testStream('./test/fixtures/fn-disjoint/*/lcov.info');
+    const expect = await getExpected('fn-disjoint');
+
+    return actual.should.equal(expect);
+  });
+
   it('should optionally prepend source file lines with corrected pathing', async function () {
     const pattern = './test/fixtures/coverage-subfolder/*/coverage/lcov.info';
     const options = { 'prepend-source-files': true };

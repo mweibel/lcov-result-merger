@@ -1,0 +1,15 @@
+TN:
+SF:./src/Foo.js
+FN:5,shared
+FN:9,onlyInB
+FNF:2
+FNH:2
+FNDA:3,shared
+FNDA:1,onlyInB
+DA:5,3
+DA:9,1
+LF:2
+LH:2
+BRF:0
+BRH:0
+end_of_record

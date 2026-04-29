@@ -1,4 +1,7 @@
+TN:
 SF:f:\web\grunt-lcov-merge\tasks\lib\lcov-merge.js
+FNF:0
+FNH:0
 DA:10,1
 DA:16,1
 DA:17,1
@@ -36,10 +39,14 @@ DA:71,1
 DA:72,1
 DA:75,7
 DA:80,1
+LF:37
+LH:37
 BRDA:33,1,0,1
 BRDA:33,1,1,4
 BRDA:63,2,0,1
 BRDA:63,2,1,7
 BRDA:68,3,0,8
 BRDA:68,3,1,1
+BRF:6
+BRH:6
 end_of_record
