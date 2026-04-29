@@ -1,4 +1,17 @@
+# Changelog
 
+## [6.0.0](https://github.com/mweibel/lcov-result-merger/compare/v6.0.0-rc.0...v6.0.0) (2026-04-29)
+
+### ⚠ BREAKING CHANGES
+
+* drop support for Node before v20
+* drop explicit support for Node 14
+
+### Features
+
+* add support for FN and FNDA records in LCOV merging and reporting ([#60](https://github.com/mweibel/lcov-result-merger/issues/60)) ([a56ff87](https://github.com/mweibel/lcov-result-merger/commit/a56ff87f6589986919c3f70f1aaa1df94f32c0bc))
+* drop explicit support for Node 14 ([13c1905](https://github.com/mweibel/lcov-result-merger/commit/13c19058af07a16507aa5e6afb64bddcd75f7978))
+* drop support for Node before v20 ([afbbdc0](https://github.com/mweibel/lcov-result-merger/commit/afbbdc060b46cd87c77fe713c2a2d4bc545e4990))
 
 ## [6.0.0-rc.0](https://github.com/mweibel/lcov-result-merger/compare/v5.0.1...v6.0.0-rc.0) (2024-05-17)
 
