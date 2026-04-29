@@ -1,7 +1,7 @@
 const { dirname, join } = require('node:path');
 const { mkdtemp, readFile } = require('node:fs/promises');
 const { tmpdir } = require('node:os');
-const execa = require('execa');
+const { execa } = require('execa');
 const { rimraf } = require('rimraf');
 
 /**
