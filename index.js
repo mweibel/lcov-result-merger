@@ -53,7 +53,9 @@ function processFile(sourceDir, data, lcov, config) {
             fullFilePathName
           );
 
-          sourceFilePath = './' + rootRelPathName;
+          // LCOV consumers expect POSIX-style paths, so normalize away
+          // any Windows backslashes introduced by path.relative.
+          sourceFilePath = './' + rootRelPathName.split(path.sep).join('/');
         }
 
         currentCoverageFile = lcov.addCoverageFile(sourceFilePath);
@@ -68,8 +70,18 @@ function processFile(sourceDir, data, lcov, config) {
         currentCoverageFile.parseBRDA(suffix);
         break;
 
+      case 'FN':
+        currentCoverageFile.parseFN(suffix);
+        break;
+
+      case 'FNDA':
+        currentCoverageFile.parseFNDA(suffix);
+        break;
+
       default:
-      // do nothing with not implemented prefixes
+      // Other prefixes (TN, FNF, FNH, LF, LH, BRF, BRH) are intentionally
+      // skipped — the summary counts are recomputed from the merged
+      // records when serializing, and TN is normalized in the output.
     }
   }
 
