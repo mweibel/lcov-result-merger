@@ -44,8 +44,8 @@
   "license": "MIT",
   "readmeFilename": "README.md",
   "dependencies": {
-    "fast-glob": "^3.2.11",
-    "yargs": "^16.2.0"
+    "fast-glob": "^3.3.3",
+    "yargs": "^18.0.0"
   },
   "devDependencies": {
     "@release-it/conventional-changelog": "^11.0.0",
