@@ -1,5 +1,6 @@
 {
   "name": "lcov-result-merger",
+  "version": "6.0.0-rc.0",
   "description": "Merges multiple lcov results into one",
   "main": "index.js",
   "types": "index.d.ts",
@@ -65,12 +66,7 @@
     "tsd": "^0.29.0"
   },
   "engines": {
-    "node": ">=14"
-  },
-  "version": "6.0.0-rc.0",
-  "volta": {
-    "node": "14.17.3",
-    "npm": "7.18.1"
+    "node": ">=16"
   },
   "release-it": {
     "plugins": {
