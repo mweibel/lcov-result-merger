@@ -2,7 +2,7 @@
  * LCOV result merger
  *
  * @author Michael Weibel <michael.weibel@gmail.com>
- * @copyright 2013-2024 Michael Weibel
+ * @copyright 2013-2026 Michael Weibel
  * @license MIT
  */
 
