@@ -15,8 +15,11 @@ const { rimraf } = require('rimraf');
  */
 async function runCli(commands, pattern) {
   const executable = join(__dirname, '../../bin/lcov-result-merger.js');
-  const sourceGlob =
-    pattern || `"${join(__dirname, '..', 'fixtures/basic/*/lcov.info')}"`;
+  // fast-glob requires forward slashes, and execa doesn't run a shell so we
+  // must not wrap the pattern in quotes — they would be passed verbatim.
+  const sourceGlob = pattern
+    ? pattern.replace(/^"|"$/g, '')
+    : './test/fixtures/basic/*/lcov.info';
   const args = [executable, sourceGlob, ...(commands || [])];
 
   return (await execa('node', args)).stdout.trim();
@@ -25,7 +28,7 @@ async function runCli(commands, pattern) {
 /**
  * Read the contents from the relevant "expected" fixture file.
  *
- * @param {'basic'|'prepended'|'prepended-path-fix'|'windows'} type
+ * @param {'basic'|'prepended'|'prepended-path-fix'|'windows'|'fn-colon'|'fn-disjoint'} type
  *
  * @returns {Promise<string>}
  */
