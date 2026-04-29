@@ -50,7 +50,7 @@ const args = yargs(hideBin(process.argv)).command(
             'to (fed to stderr).',
         },
       });
-  }
+  },
 ).argv;
 
 (async function () {

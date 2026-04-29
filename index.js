@@ -46,16 +46,16 @@ function processFile(sourceDir, data, lcov, config) {
 
         if (config.prependSourceFiles) {
           const fullFilePathName = path.normalize(
-            path.join(sourceDir, config.prependPathFix, sourceFilePath)
+            path.join(sourceDir, config.prependPathFix, sourceFilePath),
           );
 
           const rootRelPathName = path.relative(
             process.cwd(),
-            fullFilePathName
+            fullFilePathName,
           );
 
           config.logger?.(
-            `Re-writing source file path, Before: "${sourceFilePath}"`
+            `Re-writing source file path, Before: "${sourceFilePath}"`,
           );
 
           // LCOV consumers expect POSIX-style paths, so normalize away
@@ -63,7 +63,7 @@ function processFile(sourceDir, data, lcov, config) {
           sourceFilePath = './' + rootRelPathName.split(path.sep).join('/');
 
           config.logger?.(
-            `Re-writing source file path, After:  "${sourceFilePath}"`
+            `Re-writing source file path, After:  "${sourceFilePath}"`,
           );
         }
 
@@ -92,7 +92,7 @@ function processFile(sourceDir, data, lcov, config) {
         // skipped — the summary counts are recomputed from the merged
         // records when serializing, and TN is normalized in the output.
         config.logger?.(
-          `Ignoring unrecognized/unsupported entry (line #${i}): "${prefix}:${suffix}"`
+          `Ignoring unrecognized/unsupported entry (line #${i}): "${prefix}:${suffix}"`,
         );
     }
   }
@@ -135,8 +135,8 @@ class WrappingTransform extends Transform {
     this.mergeOptions = mergeOptions
       ? mergeOptions
       : Array.isArray(filePathsOrMergeOptions)
-      ? {}
-      : filePathsOrMergeOptions || {};
+        ? {}
+        : filePathsOrMergeOptions || {};
   }
 
   _transform(chunk, encoding, callback) {
@@ -147,7 +147,7 @@ class WrappingTransform extends Transform {
   _flush(callback) {
     mergeCoverageReportFiles(this.filePaths, this.mergeOptions).then(
       (fullReport) => callback(null, fullReport.toString().trim()),
-      (error) => callback(error)
+      (error) => callback(error),
     );
   }
 }

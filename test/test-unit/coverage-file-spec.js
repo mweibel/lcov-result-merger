@@ -1,5 +1,3 @@
-/* eslint-env mocha */
-
 const chai = require('chai');
 chai.should();
 
@@ -195,7 +193,7 @@ describe('Unit | CoverageFile', function () {
           'LH:0\n' +
           'BRF:0\n' +
           'BRH:0\n' +
-          'end_of_record\n'
+          'end_of_record\n',
       );
   });
 
@@ -226,7 +224,7 @@ describe('Unit | CoverageFile', function () {
           'BRDA:11,20,30,-\n' +
           'BRF:2\n' +
           'BRH:1\n' +
-          'end_of_record\n'
+          'end_of_record\n',
       );
   });
 });

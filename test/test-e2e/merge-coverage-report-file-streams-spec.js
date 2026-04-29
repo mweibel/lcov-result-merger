@@ -1,5 +1,3 @@
-/* eslint-env mocha */
-
 const fastGlob = require('fast-glob');
 const chai = require('chai');
 const { getExpected } = require('../helpers');
